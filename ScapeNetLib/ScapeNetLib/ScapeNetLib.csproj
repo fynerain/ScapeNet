@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Networker.cs" />
+    <Compile Include="Core\INetworker.cs" />
     <Compile Include="Networker_Client.cs" />
     <Compile Include="Networker_Server.cs" />
     <Compile Include="Core\Packet.cs" />

@@ -7,14 +7,14 @@ using Lidgren.Network;
 
 namespace ScapeNetLib
 {
-    public class Networker_Server : Networker
+    public class Networker_Server : INetworker
     {
         NetServer server;
         NetPeerConfiguration config;
 
         private string connection_approval_string;
 
-        public override void Setup(string network_title, int port)
+        public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
             config.Port = port;
@@ -34,7 +34,7 @@ namespace ScapeNetLib
             server.Start();
         }
 
-        public override void Update()
+        public void Update()
         {
             NetIncomingMessage msg;
             while ((msg = server.ReadMessage()) != null)

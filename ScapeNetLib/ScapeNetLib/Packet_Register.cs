@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 /// <summary>
-/// Stores a list of all types of packets.
+/// Stores a list of all types of packets. That the server accepts.
 /// </summary>
 namespace ScapeNetLib
 {

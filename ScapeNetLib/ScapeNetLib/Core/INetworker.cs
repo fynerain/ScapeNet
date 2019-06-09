@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 /// </summary>
 namespace ScapeNetLib
 {
-    public abstract class Networker
+    public interface INetworker
     {
-        public abstract void Setup(string network_title, int port);
-        public abstract void Update();
+       void Setup(string network_title, int port);
+       void Update();
     }
 }

@@ -9,13 +9,14 @@ using Lidgren.Network;
 
 namespace ScapeNetLib
 {
-    public class Networker_Client : Networker
+    public class Networker_Client : INetworker
     {
 
         NetClient client;
         NetPeerConfiguration config;
 
-        public override void Setup(string network_title, int port)
+
+        public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
 
@@ -46,7 +47,12 @@ namespace ScapeNetLib
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-        public override void Update()
+        //public void OnReceive<T>(string packet_name, Func<bool, T> function) where T : Packet<T>
+        //{
+       //     function.Invoke(T);
+       // }
+
+        public void Update()
         {
           //  if (client == null)
               //  Debug.LogError("Client object does not exist, cannot instantiate network communications.");

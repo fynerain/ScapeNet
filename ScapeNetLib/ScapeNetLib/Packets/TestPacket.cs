@@ -31,34 +31,5 @@ namespace ScapeNetLib
             return msg;
         }
        
-
-        /*
-        public TestPacket OpenPacketFromMessage(NetIncomingMessage msg)
-        {
-            TestPacket packet = new TestPacket(packet_name)
-            {
-             testInt = msg.ReadInt32()
-           };
-
-           return packet;
-         }
-
-        public NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg, TestPacket packet)
-        {
-            msg.Write(packet_name);
-            msg.Write(packet.testInt);
-            return msg;
-        }
-        */
-
-        //public override TestPacket OpenPacketFromMessage<TestPacket>(NetIncomingMessage msg)
-        //{
-        //    TestPacket packet = new TestPacket(packet_name);
-        //    {
-        //        testInt = msg.ReadInt32()
-        //    };
-
-        //    return packet;
-        //}
     }
 }
