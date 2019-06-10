@@ -21,15 +21,15 @@ namespace ScapeNetLib
         }
 
 
-        //public List<Packet> packetTypes;
-
         public Dictionary<string, Type> packetTypes;
-
+        public Dictionary<string, Func<object, bool>> packetRecivedRegister;
 
         public Packet_Register()
         {
-            //packetTypes = new List<Packet>();
             packetTypes = new Dictionary<string, Type>();
+            packetRecivedRegister = new Dictionary<string, Func<object, bool>>();
+
+
             packetTypes.Add("Test", typeof(TestPacket));
         }
 

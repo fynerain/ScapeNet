@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using Lidgren.Network;
 
@@ -14,6 +13,8 @@ namespace ScapeNetLib
 
         NetClient client;
         NetPeerConfiguration config;
+
+       
 
 
         public void Setup(string network_title, int port)
@@ -47,10 +48,10 @@ namespace ScapeNetLib
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-        //public void OnReceive<T>(string packet_name, Func<bool, T> function) where T : Packet<T>
-        //{
-       //     function.Invoke(T);
-       // }
+        public void OnReceive(string packet_name, Func<object, bool> function)
+        {
+            Packet_Register.Instance.packetRecivedRegister.Add(packet_name, function);
+        }
 
         public void Update()
         {
@@ -69,7 +70,17 @@ namespace ScapeNetLib
                        // Debug.Log(msg.ReadString());
                         break;
                     case NetIncomingMessageType.Data:
-                        Console.WriteLine("MESSAGE RECEIVED IN CLIENT");                      
+                        Console.WriteLine("MESSAGE RECEIVED IN CLIENT");
+                        string packet_name = msg.ReadString();
+
+                        if (Packet_Register.Instance.packetRecivedRegister.ContainsKey(packet_name))
+                        {
+                            Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+                            MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
+                            object packet = openMethod.Invoke(instance, new object[] { msg });
+
+                            Packet_Register.Instance.packetRecivedRegister[packet_name].Invoke(packet);
+                        }
                         break;
                     case NetIncomingMessageType.StatusChanged:
                       //  if ((NetConnectionStatus)msg.ReadByte() == NetConnectionStatus.Connected)
