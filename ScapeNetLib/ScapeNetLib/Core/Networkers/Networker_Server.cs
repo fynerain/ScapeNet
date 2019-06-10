@@ -27,6 +27,30 @@ namespace ScapeNetLib
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
+        public void OnReceive(string packet_name, Func<object, bool> function)
+        {
+            Packet_Register.Instance.serverPacketRecivedRegister.Add(packet_name, function);
+        }
+
+
+        public void SendPacket<T>(T packet) where T : Packet<T>
+        {
+            NetOutgoingMessage msg = server.CreateMessage();
+
+            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage(msg, packet);
+            server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        public void SendPacket<T>(T packet, NetConnection conn) where T : Packet<T>
+        {
+            NetOutgoingMessage msg = server.CreateMessage();
+
+            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage(msg, packet);
+            server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
+        }
+
         public void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
         {
             config.ConnectionTimeout = connection_timeout;

@@ -92,8 +92,6 @@ namespace ScapeNetLib
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
-                      //  if ((NetConnectionStatus)msg.ReadByte() == NetConnectionStatus.Connected)
-                          //  OnConnected();
                         break;
                     default:
                       //  Debug.Log("Unhandled type: " + msg.MessageType);

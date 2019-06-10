@@ -18,6 +18,12 @@ namespace ScapeNetLib
 
         private string connection_approval_string;
 
+        int currentPlayerID = -1;
+        int currentItemID = -1;
+
+        //List of all players, with their id, and respective connection
+        Dictionary<NetConnection, int> players;
+
         public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
@@ -27,6 +33,29 @@ namespace ScapeNetLib
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
+        public void OnReceive(string packet_name, Func<object, bool> function)
+        {
+            Packet_Register.Instance.serverPacketRecivedRegister.Add(packet_name, function);
+        }
+
+        public void SendPacket<T>(T packet, NetConnection conn) where T : Packet<T>
+        {
+            NetOutgoingMessage msg = server.CreateMessage();
+
+            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage(msg, packet);
+            server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        public void SendPacket<T>(T packet) where T : Packet<T>
+        {
+            NetOutgoingMessage msg = server.CreateMessage();
+
+            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage(msg, packet);
+            server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
+        }
+
         public void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
         {
             config.ConnectionTimeout = connection_timeout;
@@ -34,8 +63,59 @@ namespace ScapeNetLib
 
             this.connection_approval_string = connection_approval_string;
 
+            players = new Dictionary<NetConnection, int>();
+
+            AddDefaultPacketReceives();
+
+
             server = new NetServer(config);
             server.Start();
+        }
+
+        private void AddDefaultPacketReceives()
+        {
+            Packet_Register.Instance.serverPacketRecivedRegister.Add("D_Connection", packetObj => {
+                ConnectionPacket connectionPacket = (ConnectionPacket)packetObj;
+             
+                //Register Player
+                int newID = GetNextPlayerID();
+                players.Add(connectionPacket.senderConnection, newID);
+
+                ConnectionPacket packet = new ConnectionPacket("D_Connection");
+                packet.id = newID;
+
+                SendPacket<ConnectionPacket>(packet, connectionPacket.senderConnection);
+
+                return false; //shouldn't send out to clients or run default packing method
+            });
+
+
+            //NEED TO COMPLETE
+            Packet_Register.Instance.serverPacketRecivedRegister.Add("D_Instantiate", packetObj => {
+                InstantiationPacket instantiate = (InstantiationPacket)packetObj;
+
+                
+                packet.id = newID;
+
+                SendPacket<ConnectionPacket>(packet, connectionPacket.senderConnection);
+
+                return false; //shouldn't send out to clients or run default packing method
+            });
+
+
+        }
+
+        private int GetNextPlayerID()
+        {
+            currentPlayerID++;
+            return currentPlayerID;
+        }
+
+
+        private int GetNextItemID()
+        {
+            currentItemID++;
+            return currentItemID;
         }
 
         public void Update()
@@ -84,19 +164,23 @@ namespace ScapeNetLib
 
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
+                            bool shouldSendToClients = false;
 
                             //If it needs to be adjusted then adjust the packet
                             if (Packet_Register.Instance.serverPacketRecivedRegister.ContainsKey(packet_name))
                             {
-                                Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(packet);
+                               shouldSendToClients = Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(packet);
                             }
 
-                            MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                            MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
+                            if (shouldSendToClients)
+                            {
+                                MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
+                                MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
 
-                            outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
-                            outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
-                            server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
+                                outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
+                                outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
+                                server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
+                            }
                         }
 
                         break;
