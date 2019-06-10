@@ -35,14 +35,21 @@ namespace ScapeNetLib
             client.Connect(ip, port, approval);
         }
 
+        public void SendPacket<T>(T packet) where T : Packet<T>
+        {
+            NetOutgoingMessage msg = client.CreateMessage();
+
+            msg = packet.PackPacketIntoMessage(msg, packet);
+            client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
+        }
+
         public void TestSend()
         {
             NetOutgoingMessage msg = client.CreateMessage();
             TestPacket pak = new TestPacket("Test");
             pak.testInt = 100;
 
-
-            //Console.WriteLine("Test packet has been sent.");
+            Console.WriteLine("Test packet has been sent.");
 
             msg = pak.PackPacketIntoMessage(msg, pak);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
