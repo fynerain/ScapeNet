@@ -45,8 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\INetworker.cs" />
-    <Compile Include="Networker_Client.cs" />
-    <Compile Include="Networker_Server.cs" />
+    <Compile Include="Core\Networkers\Networker_Client.cs" />
+    <Compile Include="Core\Networkers\Networker_Server.cs" />
     <Compile Include="Core\Packet.cs" />
     <Compile Include="Packets\TestPacket.cs" />
     <Compile Include="Packet_Register.cs" />

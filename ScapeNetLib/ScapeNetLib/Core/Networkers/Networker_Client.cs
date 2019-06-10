@@ -5,17 +5,17 @@ using System.Reflection;
 
 using Lidgren.Network;
 
-
+/// <summary>
+/// Used to handle all connections as a client. Has support for custom packet types, as well as doing special things when
+/// packets are received.
+/// </summary>
 namespace ScapeNetLib
 {
     public class Networker_Client : INetworker
     {
 
         NetClient client;
-        NetPeerConfiguration config;
-
-       
-
+        NetPeerConfiguration config;     
 
         public void Setup(string network_title, int port)
         {
@@ -50,7 +50,7 @@ namespace ScapeNetLib
 
         public void OnReceive(string packet_name, Func<object, bool> function)
         {
-            Packet_Register.Instance.packetRecivedRegister.Add(packet_name, function);
+            Packet_Register.Instance.clientPacketRecivedRegister.Add(packet_name, function);
         }
 
         public void Update()
@@ -73,13 +73,13 @@ namespace ScapeNetLib
                         Console.WriteLine("MESSAGE RECEIVED IN CLIENT");
                         string packet_name = msg.ReadString();
 
-                        if (Packet_Register.Instance.packetRecivedRegister.ContainsKey(packet_name))
+                        if (Packet_Register.Instance.clientPacketRecivedRegister.ContainsKey(packet_name))
                         {
                             Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
 
-                            Packet_Register.Instance.packetRecivedRegister[packet_name].Invoke(packet);
+                            Packet_Register.Instance.clientPacketRecivedRegister[packet_name].Invoke(packet);
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:

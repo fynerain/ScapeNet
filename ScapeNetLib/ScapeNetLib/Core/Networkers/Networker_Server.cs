@@ -5,6 +5,10 @@ using System.Reflection;
 
 using Lidgren.Network;
 
+/// <summary>
+/// Used to handle all connections as a server. Has support for custom packet types, as well as doing special things when
+/// packets are received.
+/// </summary>
 namespace ScapeNetLib
 {
     public class Networker_Server : INetworker
@@ -72,16 +76,20 @@ namespace ScapeNetLib
                         NetOutgoingMessage outMsg = server.CreateMessage();
 
                         Console.WriteLine("Message Received In Server: " + packet_name + " packet");
-                        ///////////
-                        //Type t = typeof(ScapeNetLib.Packets.TestPacket);
-                        ////////
-                        ///
-
-
+ 
                         if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name)) { 
                             Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
-                            MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("RepackPacket");
-                            outMsg = openMethod.Invoke(instance, new object[] { msg, outMsg }) as NetOutgoingMessage;
+
+                            MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
+                            object packet = openMethod.Invoke(instance, new object[] { msg });
+
+                            //If it needs to be adjusted then adjust the packet
+                            if (Packet_Register.Instance.serverPacketRecivedRegister.ContainsKey(packet_name)) {                     
+                                Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(packet);
+                            }
+
+                            MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
+                            outMsg = openMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
                             server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
                         }
                        

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Lidgren.Network;
 
 /// <summary>
-/// Definition of a packet.
+/// Definition of a packet, as well as accompanying methods for opening, and packing them. 
 /// </summary>
 namespace ScapeNetLib
 {

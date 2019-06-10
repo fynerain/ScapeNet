@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 /// <summary>
-/// Stores a list of all types of packets. That the server accepts.
+/// Stores a list of all types of packets that the client and server can use.
 /// </summary>
 namespace ScapeNetLib
 {
@@ -22,13 +22,14 @@ namespace ScapeNetLib
 
 
         public Dictionary<string, Type> packetTypes;
-        public Dictionary<string, Func<object, bool>> packetRecivedRegister;
+        public Dictionary<string, Func<object, bool>> clientPacketRecivedRegister;
+        public Dictionary<string, Func<object, bool>> serverPacketRecivedRegister;
 
         public Packet_Register()
         {
             packetTypes = new Dictionary<string, Type>();
-            packetRecivedRegister = new Dictionary<string, Func<object, bool>>();
-
+            clientPacketRecivedRegister = new Dictionary<string, Func<object, bool>>();
+            serverPacketRecivedRegister = new Dictionary<string, Func<object, bool>>();
 
             packetTypes.Add("Test", typeof(TestPacket));
         }

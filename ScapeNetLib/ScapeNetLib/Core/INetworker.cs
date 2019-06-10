@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 /// <summary>
-/// Interface used by both the client and server.
+/// Interface used by all variations of the client and server.
 /// </summary>
 namespace ScapeNetLib
 {
