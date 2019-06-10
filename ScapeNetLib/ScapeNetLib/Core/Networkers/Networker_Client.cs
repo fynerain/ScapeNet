@@ -47,7 +47,7 @@ namespace ScapeNetLib
         public void TestSend()
         {
             NetOutgoingMessage msg = client.CreateMessage();
-            TestPacket pak = new TestPacket("Test");
+            TestPacket pak = new TestPacket("D_Test");
             pak.testInt = 100;
 
             Console.WriteLine("Test packet has been sent.");

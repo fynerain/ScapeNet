@@ -16,7 +16,7 @@ namespace ClientTest
             cli.Setup("Test", 0);
             cli.StartClient("localhost", 7777, "secret");
 
-            cli.OnReceive("Test", packetObj => {
+            cli.OnReceive("D_Test", packetObj => {
 
                 TestPacket testPacket = (TestPacket)packetObj;
                 Console.WriteLine("Packet stored the value: " + testPacket.testInt);
