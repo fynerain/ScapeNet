@@ -11,7 +11,7 @@ using Lidgren.Network;
 /// </summary>
 namespace ScapeNetLib
 {
-    public class Networker_Server : INetworker
+    public class Networker_Server_Unity : INetworker
     {
         NetServer server;
         NetPeerConfiguration config;
@@ -22,7 +22,7 @@ namespace ScapeNetLib
         {
             config = new NetPeerConfiguration(network_title);
             config.Port = port;
-           
+
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
@@ -73,29 +73,32 @@ namespace ScapeNetLib
                         break;
                     case NetIncomingMessageType.Data:
                         string packet_name = msg.ReadString();
+                        int player_id = msg.ReadInt32();
                         NetOutgoingMessage outMsg = server.CreateMessage();
 
                         Console.WriteLine("Message Received In Server: " + packet_name + " packet");
- 
-                        if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name)) { 
+
+                        if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name))
+                        {
                             Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
 
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
 
                             //If it needs to be adjusted then adjust the packet
-                            if (Packet_Register.Instance.serverPacketRecivedRegister.ContainsKey(packet_name)) {                     
+                            if (Packet_Register.Instance.serverPacketRecivedRegister.ContainsKey(packet_name))
+                            {
                                 Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(packet);
                             }
 
                             MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
                             MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
 
-                            outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name }) as NetOutgoingMessage;
+                            outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
                             outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
                             server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
                         }
-                       
+
                         break;
                     default:
                         Console.WriteLine("Unhandled type: " + msg.MessageType);

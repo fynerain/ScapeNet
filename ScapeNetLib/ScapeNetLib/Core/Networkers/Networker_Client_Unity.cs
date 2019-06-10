@@ -11,7 +11,7 @@ using Lidgren.Network;
 /// </summary>
 namespace ScapeNetLib
 {
-    public class Networker_Client : INetworker
+    public class Networker_Client_Unity : INetworker
     {
 
         NetClient client;
@@ -35,11 +35,11 @@ namespace ScapeNetLib
             client.Connect(ip, port, approval);
         }
 
-        public void SendPacket<T>(T packet) where T : Packet<T>
+        public void SendPacket<T>(T packet, int player_id) where T : Packet<T>
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName(), player_id);
             msg = packet.PackPacketIntoMessage(msg, packet);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -80,7 +80,7 @@ namespace ScapeNetLib
                     case NetIncomingMessageType.Data:
                         Console.WriteLine("MESSAGE RECEIVED IN CLIENT");
                         string packet_name = msg.ReadString();
-
+                        int player_id = msg.ReadInt32();
 
                         if (Packet_Register.Instance.clientPacketRecivedRegister.ContainsKey(packet_name))
                         {

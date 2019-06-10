@@ -34,8 +34,7 @@ namespace ScapeNetLib
 
         public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg, RegisterPacket packet)
         {
-            msg.Write(packet_name);
-            msg.Write(packet.testInt);
+           // msg.Write(packet.testInt);
             return msg;
         }
        
