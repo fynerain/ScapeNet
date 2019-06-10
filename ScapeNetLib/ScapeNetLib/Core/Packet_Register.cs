@@ -31,7 +31,10 @@ namespace ScapeNetLib
             clientPacketRecivedRegister = new Dictionary<string, Func<object, bool>>();
             serverPacketRecivedRegister = new Dictionary<string, Func<object, bool>>();
 
-            packetTypes.Add("Test", typeof(TestPacket));
+            packetTypes.Add("D_Test", typeof(TestPacket));
+            packetTypes.Add("D_Register", typeof(RegisterPacket));
+            packetTypes.Add("D_Delete", typeof(DeletePacket));
+            packetTypes.Add("D_PositionRotation", typeof(PositionRotation));
         }
 
   

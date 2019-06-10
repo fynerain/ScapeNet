@@ -50,6 +50,8 @@
     <Compile Include="Core\Networkers\Networker_Server_Unity.cs" />
     <Compile Include="Core\Networkers\Networker_Server.cs" />
     <Compile Include="Core\Packet.cs" />
+    <Compile Include="Packets\DeletePacket.cs" />
+    <Compile Include="Packets\PositionRotation.cs" />
     <Compile Include="Packets\RegisterPacket.cs" />
     <Compile Include="Packets\TestPacket.cs" />
     <Compile Include="Core\Packet_Register.cs" />
