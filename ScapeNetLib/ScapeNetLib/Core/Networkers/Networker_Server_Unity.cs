@@ -84,9 +84,9 @@ namespace ScapeNetLib
                 ConnectionPacket packet = new ConnectionPacket("D_Connection");
                 packet.id = newID;
 
-                SendPacket<ConnectionPacket>(packet, connectionPacket.senderConnection);
+                connectionPacket = packet;
 
-                return false; //shouldn't send out to clients or run default packing method
+                return false;
             });
 
 
@@ -94,12 +94,10 @@ namespace ScapeNetLib
             Packet_Register.Instance.serverPacketRecivedRegister.Add("D_Instantiate", packetObj => {
                 InstantiationPacket instantiate = (InstantiationPacket)packetObj;
 
-                
-                packet.id = newID;
+                instantiate.item_id = GetNextItemID();
 
-                SendPacket<ConnectionPacket>(packet, connectionPacket.senderConnection);
 
-                return false; //shouldn't send out to clients or run default packing method
+                return true;
             });
 
 
@@ -172,14 +170,20 @@ namespace ScapeNetLib
                                shouldSendToClients = Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(packet);
                             }
 
-                            if (shouldSendToClients)
-                            {
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
                                 MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
 
                                 outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
+
+
+                            if (shouldSendToClients)
+                            {
                                 server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
+                            }
+                            else
+                            {
+                                server.SendMessage(outMsg, msg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
                             }
                         }
 
