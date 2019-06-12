@@ -98,7 +98,7 @@ namespace ScapeNetLib
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
                                 MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
 
-                                outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
+                                outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, 0 }) as NetOutgoingMessage;
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
                                 client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);
