@@ -58,7 +58,7 @@ namespace ScapeNetLib
 
         public void OnReceive(string packet_name, Func<object[], bool> function)
         {
-            Packet_Register.Instance.clientPacketRecivedRegister.Add(packet_name, function);
+            Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_name, function);
         }
 
         public void Update()
@@ -82,14 +82,14 @@ namespace ScapeNetLib
                         string packet_name = msg.ReadString();
 
 
-                        if (Packet_Register.Instance.clientPacketRecivedRegister.ContainsKey(packet_name))
+                        if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_name))
                         {
                             Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
                             bool shouldSendBack;
 
-                            shouldSendBack = Packet_Register.Instance.clientPacketRecivedRegister[packet_name].Invoke(new object[] { packet, 0 });
+                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
 
                             if (shouldSendBack)
                             {
