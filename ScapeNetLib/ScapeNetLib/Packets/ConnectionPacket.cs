@@ -10,7 +10,7 @@ namespace ScapeNetLib
 {
     public class ConnectionPacket : Packet<ConnectionPacket>
     {
-        public int id;
+        public int player_id;
         public NetConnection senderConnection;
 
         public ConnectionPacket(string packet_name) : base(packet_name){}
@@ -18,7 +18,7 @@ namespace ScapeNetLib
         public override ConnectionPacket OpenPacketFromMessage(NetIncomingMessage msg)
         {
             ConnectionPacket packet = new ConnectionPacket(packet_name);
-            packet.id = msg.ReadInt32();
+            packet.player_id = msg.ReadInt32();
             senderConnection = msg.SenderConnection;
 
             return packet;
@@ -26,8 +26,7 @@ namespace ScapeNetLib
 
         public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg, ConnectionPacket packet)
         {
-            msg.Write("Connected");
-            msg.Write(id);
+            msg.Write(player_id);
             return msg;
         }
        

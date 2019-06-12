@@ -37,9 +37,26 @@ namespace ScapeNetLib
             client.Connect(ip, port, approval);
         }
 
+        public bool IsConnected()
+        {
+            return isConnectedToServer;
+        }
+
+        public int GetPlayerID()
+        {
+            return player_id;
+        }
+
         private void AddDefaultPacketReceives()
         {
+            Packet_Register.Instance.clientPacketRecivedRegister.Add("D_Connection", packetObj => {
+                ConnectionPacket connectionPacket = (ConnectionPacket)packetObj[0];
 
+                player_id = connectionPacket.player_id;
+                isConnectedToServer = true;
+
+                return false;
+            });
         }
 
         public void SendPacket<T>(T packet) where T : Packet<T>

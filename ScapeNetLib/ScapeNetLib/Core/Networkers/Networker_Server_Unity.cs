@@ -82,7 +82,7 @@ namespace ScapeNetLib
                 players.Add(connectionPacket.senderConnection, newID);
 
                 ConnectionPacket packet = new ConnectionPacket("D_Connection");
-                packet.id = newID;
+                packet.player_id = newID;
 
                 connectionPacket = packet;
 
