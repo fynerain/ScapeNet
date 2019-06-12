@@ -27,7 +27,7 @@ namespace ScapeNetLib
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
-        public void OnReceive(string packet_name, Func<object, bool> function)
+        public void OnReceive(string packet_name, Func<object[], bool> function)
         {
             Packet_Register.Instance.serverPacketRecivedRegister.Add(packet_name, function);
         }
@@ -109,7 +109,7 @@ namespace ScapeNetLib
 
                             //If it needs to be adjusted then adjust the packet
                             if (Packet_Register.Instance.serverPacketRecivedRegister.ContainsKey(packet_name)) {                     
-                                Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(packet);
+                                Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(new object[] { packet, 0 });
                             }
 
                             MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");

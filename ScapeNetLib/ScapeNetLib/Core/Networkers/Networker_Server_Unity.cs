@@ -33,7 +33,7 @@ namespace ScapeNetLib
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
-        public void OnReceive(string packet_name, Func<object, bool> function)
+        public void OnReceive(string packet_name, Func<object[], bool> function)
         {
             Packet_Register.Instance.serverPacketRecivedRegister.Add(packet_name, function);
         }
@@ -75,7 +75,7 @@ namespace ScapeNetLib
         private void AddDefaultPacketReceives()
         {
             Packet_Register.Instance.serverPacketRecivedRegister.Add("D_Connection", packetObj => {
-                ConnectionPacket connectionPacket = (ConnectionPacket)packetObj;
+                ConnectionPacket connectionPacket = (ConnectionPacket)packetObj[0];
              
                 //Register Player
                 int newID = GetNextPlayerID();
@@ -92,7 +92,7 @@ namespace ScapeNetLib
 
             //NEED TO COMPLETE
             Packet_Register.Instance.serverPacketRecivedRegister.Add("D_Instantiate", packetObj => {
-                InstantiationPacket instantiate = (InstantiationPacket)packetObj;
+                InstantiationPacket instantiate = (InstantiationPacket)packetObj[0];
 
                 instantiate.item_id = GetNextItemID();
 
@@ -167,7 +167,7 @@ namespace ScapeNetLib
                             //If it needs to be adjusted then adjust the packet
                             if (Packet_Register.Instance.serverPacketRecivedRegister.ContainsKey(packet_name))
                             {
-                               shouldSendToClients = Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(packet);
+                               shouldSendToClients = Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(new object[] { packet, player_id });
                             }
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");

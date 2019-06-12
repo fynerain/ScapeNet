@@ -56,7 +56,7 @@ namespace ScapeNetLib
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-        public void OnReceive(string packet_name, Func<object, bool> function)
+        public void OnReceive(string packet_name, Func<object[], bool> function)
         {
             Packet_Register.Instance.clientPacketRecivedRegister.Add(packet_name, function);
         }
@@ -88,7 +88,7 @@ namespace ScapeNetLib
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
 
-                            Packet_Register.Instance.clientPacketRecivedRegister[packet_name].Invoke(packet);
+                            Packet_Register.Instance.clientPacketRecivedRegister[packet_name].Invoke(new object[] { packet, 0 });
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
