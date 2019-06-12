@@ -162,12 +162,12 @@ namespace ScapeNetLib
 
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
-                            bool shouldSendToClients = false;
+                            bool shouldSendToAll = false;
 
                             //If it needs to be adjusted then adjust the packet
                             if (Packet_Register.Instance.serverPacketRecivedRegister.ContainsKey(packet_name))
                             {
-                               shouldSendToClients = Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(new object[] { packet, player_id });
+                                shouldSendToAll = Packet_Register.Instance.serverPacketRecivedRegister[packet_name].Invoke(new object[] { packet, player_id });
                             }
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
@@ -177,7 +177,7 @@ namespace ScapeNetLib
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
 
-                            if (shouldSendToClients)
+                            if (shouldSendToAll)
                             {
                                 server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
                             }

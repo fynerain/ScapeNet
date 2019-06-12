@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
-
 using Lidgren.Network;
 
-/// <summary>
-/// Used to handle all connections as a client. Has support for custom packet types, as well as doing special things when
-/// packets are received.
-/// </summary>
+
 namespace ScapeNetLib
 {
-    public class Networker_Client : INetworker
+    public class Networker_Client_Unity : INetworker
     {
-
         NetClient client;
-        NetPeerConfiguration config;     
+        NetPeerConfiguration config;
+
+        int player_id = -1;
+        bool isConnectedToServer = false;
 
         public void Setup(string network_title, int port)
         {
@@ -30,9 +30,16 @@ namespace ScapeNetLib
             client = new NetClient(config);
             client.Start();
 
+            AddDefaultPacketReceives();
+
             NetOutgoingMessage approval = client.CreateMessage();
             approval.Write(connection_approval_string);
             client.Connect(ip, port, approval);
+        }
+
+        private void AddDefaultPacketReceives()
+        {
+
         }
 
         public void SendPacket<T>(T packet) where T : Packet<T>
@@ -50,7 +57,7 @@ namespace ScapeNetLib
             TestPacket pak = new TestPacket("D_Test");
             pak.testInt = 100;
 
-            Console.WriteLine("Test packet has been sent.");
+
 
             msg = pak.PackPacketIntoMessage(msg, pak);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
@@ -63,8 +70,6 @@ namespace ScapeNetLib
 
         public void Update()
         {
-          //  if (client == null)
-              //  Debug.LogError("Client object does not exist, cannot instantiate network communications.");
 
             NetIncomingMessage msg;
             while ((msg = client.ReadMessage()) != null)
@@ -75,24 +80,22 @@ namespace ScapeNetLib
                     case NetIncomingMessageType.DebugMessage:
                     case NetIncomingMessageType.WarningMessage:
                     case NetIncomingMessageType.ErrorMessage:
-                       // Debug.Log(msg.ReadString());
+                        // Debug.Log(msg.ReadString());
                         break;
                     case NetIncomingMessageType.Data:
-                        Console.WriteLine("MESSAGE RECEIVED IN CLIENT");
                         string packet_name = msg.ReadString();
-
+                        
 
                         if (Packet_Register.Instance.clientPacketRecivedRegister.ContainsKey(packet_name))
                         {
-                            Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+                            System.Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
                             bool shouldSendBack;
 
                             shouldSendBack = Packet_Register.Instance.clientPacketRecivedRegister[packet_name].Invoke(new object[] { packet, 0 });
 
-                            if (shouldSendBack)
-                            {
+                            if (shouldSendBack) {
                                 NetOutgoingMessage outMsg = client.CreateMessage();
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
@@ -102,18 +105,17 @@ namespace ScapeNetLib
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
                                 client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);
-                            }
+                             }
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
                         break;
                     default:
-                      //  Debug.Log("Unhandled type: " + msg.MessageType);
+                        //  Debug.Log("Unhandled type: " + msg.MessageType);
                         break;
                 }
                 client.Recycle(msg);
             }
         }
     }
-}
-
+}}
