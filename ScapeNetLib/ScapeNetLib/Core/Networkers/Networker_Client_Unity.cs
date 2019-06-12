@@ -85,6 +85,14 @@ namespace ScapeNetLib
             Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_name, function);
         }
 
+        public void OnConnected()
+        {
+            ConnectionPacket conPacket = new ConnectionPacket("D_Connection");
+            conPacket.player_id = -1;
+
+            SendPacket(conPacket);
+        }
+
         public void Update()
         {
 
@@ -126,6 +134,8 @@ namespace ScapeNetLib
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
+                        if ((NetConnectionStatus)msg.ReadByte() == NetConnectionStatus.Connected)
+                            OnConnected();
                         break;
                     default:
                         //  Debug.Log("Unhandled type: " + msg.MessageType);
