@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// </summary>
 namespace ScapeNetLib
 {
-    public class Packet_Register
+    internal class Packet_Register
     {
         private static Packet_Register instance;
 
