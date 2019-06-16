@@ -37,25 +37,7 @@ namespace ScapeNetLib
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);
         }
-
-        public void SendPacket<T>(T packet, NetConnection conn) where T : Packet<T>
-        {
-            NetOutgoingMessage msg = server.CreateMessage();
-
-            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage( msg,  packet);
-            server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
-        }
-
-        public void SendPacket<T>(T packet) where T : Packet<T>
-        {
-            NetOutgoingMessage msg = server.CreateMessage();
-
-            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage( msg,  packet);
-            server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
-        }
-
+    
         public void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
         {
             config.ConnectionTimeout = connection_timeout;
@@ -128,15 +110,15 @@ namespace ScapeNetLib
            
             while ((msg = server.ReadMessage()) != null)
             {
-                Console.WriteLine("Bytes : " + msg.LengthBytes);
 
                 switch (msg.MessageType)
                 {
                     case NetIncomingMessageType.VerboseDebugMessage:
                     case NetIncomingMessageType.DebugMessage:
+                    case NetIncomingMessageType.WarningMessage:
                         break;
 
-                    case NetIncomingMessageType.WarningMessage:
+                   
                     case NetIncomingMessageType.ErrorMessage:
                         throw new Exception("Error: " + msg.ReadString());
 
@@ -167,34 +149,28 @@ namespace ScapeNetLib
                         {
                             Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
                             object packet = null;
-                            bool shouldSendToAll = false;
+                            bool shouldSendToAll = true;
 
-                            try
-                            {
-                                MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
-                                packet = openMethod.Invoke(instance, new object[] { msg });
-                                
-                            }catch(System.IndexOutOfRangeException e)
-                            {
-                                Console.WriteLine("Packet has failed to open due to an exception: " + e.Message);
-                            }
 
+                            MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
+                            packet = openMethod.Invoke(instance, new object[] { msg });
+                     
                             //If it needs to be adjusted then adjust the packet
                             if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name))
                             {
                                 shouldSendToAll = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });
                             }
 
-                             
-                                MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacketWithId");
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
 
-                                outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
+
+                                outMsg = PacketHelper.AddDefaultInformationToPacketWithId(outMsg, packet_name, player_id);
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
-
-
+                        
+                                
                             if (shouldSendToAll)
                             {
+                                Console.WriteLine("Sent Packet!");
                                 server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
                             }
                             else

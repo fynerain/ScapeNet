@@ -16,13 +16,13 @@ namespace ServerTest
             srv.Setup("MS", 7777);
             srv.HostServer(100, 2, "secret");
 
-            srv.OnReceive("D_Register", received => {
-                RegisterPacket rp = (RegisterPacket)received[0];
-                int players_id = (int)received[1];
-                Console.WriteLine(rp.obj_name);
+            //srv.OnReceive("D_Register", received => {
+            //    RegisterPacket rp = (RegisterPacket)received[0];
+             //   int players_id = (int)received[1];
+              //  Console.WriteLine(rp.obj_name);
 
-                return true; //We don't want this packet to be send to the server.
-            });
+             //   return true; //We don't want this packet to be send to the server.
+        //    });
 
             while (true)
             {

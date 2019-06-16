@@ -34,11 +34,11 @@ namespace ScapeNetLib
 
         public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  InstantiationPacket packet)
         {
-            msg.Write(obj_name);
-            msg.Write(item_id);
-            msg.Write(x);
-            msg.Write(y);
-            msg.Write(z);
+            msg.Write(packet.obj_name);
+            msg.Write(packet.item_id);
+            msg.Write(packet.x);
+            msg.Write(packet.y);
+            msg.Write(packet.z);
             return msg;
         }
        

@@ -18,36 +18,30 @@ namespace ScapeNetLib
 
         public RegisterPacket(string packet_name) : base(packet_name){}
 
-        public override RegisterPacket OpenPacketFromMessage( NetIncomingMessage msg)
+        public override RegisterPacket OpenPacketFromMessage(NetIncomingMessage msg)
         {
             RegisterPacket packet = new RegisterPacket(packet_name);
 
             packet.obj_name = msg.ReadString();
-
-          //  try
-          //  {
             packet.item_net_id = msg.ReadInt32();
-            
             packet.x = msg.ReadFloat();
             packet.y = msg.ReadFloat();
             packet.z = msg.ReadFloat();
-          //  }
-           // catch (Exception e)
-           // {
-                //Console.WriteLine(packet.item_net_id);
-                //Console.WriteLine(e.Message);
-           // }
+
+            Console.WriteLine("Register packet received: " + packet.obj_name);
 
             return packet;
         }
 
-        public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  RegisterPacket packet)
+        public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg,  RegisterPacket packet)
         {
-            msg.Write(obj_name);
-            msg.Write(item_net_id);
-            msg.Write(x);
-            msg.Write(y);
-            msg.Write(z);
+            Console.WriteLine("Register packet writing: " + obj_name);
+
+            msg.Write(packet.obj_name);
+            msg.Write(packet.item_net_id);
+            msg.Write(packet.x);
+            msg.Write(packet.y);
+            msg.Write(packet.z);
             return msg;
         }
        

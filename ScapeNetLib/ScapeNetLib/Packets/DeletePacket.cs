@@ -24,7 +24,7 @@ namespace ScapeNetLib
 
         public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  DeletePacket packet)
         {
-            msg.Write(item_net_id);
+            msg.Write(packet.item_net_id);
             return msg;
         }
        

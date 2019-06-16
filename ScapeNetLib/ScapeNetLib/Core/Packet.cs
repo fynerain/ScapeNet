@@ -33,18 +33,5 @@ namespace ScapeNetLib
             T t = OpenPacketFromMessage( msg);
             return PackPacketIntoMessage( msgO,  t);
         }
-
-        public NetOutgoingMessage AddDefaultInformationToPacket( NetOutgoingMessage msg, string packet_name)
-        {
-            msg.Write(packet_name);
-            return msg;
-        }
-
-        public NetOutgoingMessage AddDefaultInformationToPacketWithId( NetOutgoingMessage msg, string packet_name, int player_id)
-        {
-            msg.Write(packet_name);
-            msg.Write(player_id);
-            return msg;
-        }
     }
 }

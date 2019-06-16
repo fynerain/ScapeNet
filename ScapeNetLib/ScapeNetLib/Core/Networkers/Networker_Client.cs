@@ -39,7 +39,7 @@ namespace ScapeNetLib
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
+            msg = PacketHelper.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
             msg = packet.PackPacketIntoMessage( msg,  packet);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -96,9 +96,8 @@ namespace ScapeNetLib
                                 NetOutgoingMessage outMsg = client.CreateMessage();
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                                MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
-
-                                outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, 0 }) as NetOutgoingMessage;
+                            
+                                outMsg = PacketHelper.AddDefaultInformationToPacket(outMsg, packet_name);
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
                                 client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);

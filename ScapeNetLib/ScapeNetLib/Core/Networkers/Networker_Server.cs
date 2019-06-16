@@ -37,7 +37,7 @@ namespace ScapeNetLib
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
+            msg = PacketHelper.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
             msg = packet.PackPacketIntoMessage( msg,  packet);
             server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -46,7 +46,7 @@ namespace ScapeNetLib
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
+            msg = PacketHelper.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
             msg = packet.PackPacketIntoMessage( msg,  packet);
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
@@ -114,9 +114,8 @@ namespace ScapeNetLib
                             }
 
                             MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                            MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
 
-                            outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name }) as NetOutgoingMessage;
+                            outMsg = PacketHelper.AddDefaultInformationToPacket(outMsg, packet_name);
                             outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
 

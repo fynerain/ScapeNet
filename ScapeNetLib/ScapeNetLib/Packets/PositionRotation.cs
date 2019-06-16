@@ -34,11 +34,11 @@ namespace ScapeNetLib
 
         public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  PositionRotation packet)
         {
-            msg.Write(item_net_id);
-            msg.Write(isRotation);
-            msg.Write(x);
-            msg.Write(y);
-            msg.Write(z);
+            msg.Write(packet.item_net_id);
+            msg.Write(packet.isRotation);
+            msg.Write(packet.x);
+            msg.Write(packet.y);
+            msg.Write(packet.z);
             return msg;
         }
        

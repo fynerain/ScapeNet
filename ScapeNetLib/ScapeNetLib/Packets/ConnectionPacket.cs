@@ -24,7 +24,7 @@ namespace ScapeNetLib
 
         public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  ConnectionPacket packet)
         {
-            msg.Write(player_id);
+            msg.Write(packet.player_id);
             return msg;
         }
        

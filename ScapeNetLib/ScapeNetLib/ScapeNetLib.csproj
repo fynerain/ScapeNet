@@ -50,6 +50,7 @@
     <Compile Include="Core\Networkers\Networker_Server_Unity.cs" />
     <Compile Include="Core\Networkers\Networker_Server.cs" />
     <Compile Include="Core\Packet.cs" />
+    <Compile Include="Core\PacketHelper.cs" />
     <Compile Include="Packets\ConnectionPacket.cs" />
     <Compile Include="Packets\DeletePacket.cs" />
     <Compile Include="Packets\InstantiationPacket.cs" />
