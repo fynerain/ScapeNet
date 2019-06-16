@@ -55,7 +55,6 @@
     <Compile Include="Packets\DeletePacket.cs" />
     <Compile Include="Packets\InstantiationPacket.cs" />
     <Compile Include="Packets\PositionRotation.cs" />
-    <Compile Include="Packets\RegisterPacket.cs" />
     <Compile Include="Packets\TestPacket.cs" />
     <Compile Include="Core\Packet_Register.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

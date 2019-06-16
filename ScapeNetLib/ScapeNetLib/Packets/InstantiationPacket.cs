@@ -11,7 +11,7 @@ namespace ScapeNetLib
     public class InstantiationPacket : Packet<InstantiationPacket>
     {
         public string obj_name;
-        public int item_id;
+        public int item_net_id;
         public float x;
         public float y;
         public float z;
@@ -23,7 +23,7 @@ namespace ScapeNetLib
             InstantiationPacket packet = new InstantiationPacket(packet_name);
 
             packet.obj_name = msg.ReadString();
-            packet.item_id = msg.ReadInt32();
+            packet.item_net_id = msg.ReadInt32();
             packet.x = msg.ReadFloat();
             packet.y = msg.ReadFloat();
             packet.z = msg.ReadFloat();
@@ -35,7 +35,7 @@ namespace ScapeNetLib
         public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  InstantiationPacket packet)
         {
             msg.Write(packet.obj_name);
-            msg.Write(packet.item_id);
+            msg.Write(packet.item_net_id);
             msg.Write(packet.x);
             msg.Write(packet.y);
             msg.Write(packet.z);

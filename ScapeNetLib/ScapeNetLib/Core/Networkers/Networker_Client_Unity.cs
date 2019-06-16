@@ -19,6 +19,9 @@ namespace ScapeNetLib
 
         public void Setup(string network_title, int port)
         {
+            player_id = -1;
+            isConnectedToServer = false;
+
             config = new NetPeerConfiguration(network_title);
 
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
@@ -115,9 +118,8 @@ namespace ScapeNetLib
                                 NetOutgoingMessage outMsg = client.CreateMessage();
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                                MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacketWithId");
-
-                                outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
+                              
+                                outMsg = PacketHelper.AddDefaultInformationToPacketWithId(outMsg, packet_name, player_id);
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
                                 client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);

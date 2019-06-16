@@ -33,7 +33,6 @@ namespace ScapeNetLib
 
             packetTypes.Add("D_Test", typeof(TestPacket));
             packetTypes.Add("D_Connection", typeof(ConnectionPacket));
-            packetTypes.Add("D_Register", typeof(RegisterPacket));
             packetTypes.Add("D_Instantiate", typeof(InstantiationPacket));
             packetTypes.Add("D_Delete", typeof(DeletePacket));
             packetTypes.Add("D_PositionRotation", typeof(PositionRotation));

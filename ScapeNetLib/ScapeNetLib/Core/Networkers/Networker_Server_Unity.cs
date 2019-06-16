@@ -24,6 +24,9 @@ namespace ScapeNetLib
         //List of all players, with their id, and respective connection
         Dictionary<NetConnection, int> players = new Dictionary<NetConnection, int>();
 
+        //List of all instantiation packets sent. This will be sent to new joins to 'sync' them
+        List<InstantiationPacket> registers = new List<InstantiationPacket>();
+
         public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
@@ -62,18 +65,18 @@ namespace ScapeNetLib
              
                 //Register Player
                 int newID = GetNextPlayerID();
-
-                Console.WriteLine("Player ID To Send: " + newID);
-                    
-
+                Console.WriteLine("Player ID To Send: " + newID);                          
                 players.Add(senderConnection, newID);
 
                 ConnectionPacket packet = new ConnectionPacket("D_Connection");
-                packet.player_id = newID;
-
-                connectionPacket = packet;
+                connectionPacket.player_id = newID;
 
                 Console.WriteLine("Connection packet has been received.");
+
+                foreach(InstantiationPacket ip in registers)
+                {
+                    SendPacket(ip, -1);
+                }
 
                 return false;
             });
@@ -82,13 +85,44 @@ namespace ScapeNetLib
             Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Instantiate", packetObj => {
                 InstantiationPacket instantiate = (InstantiationPacket)packetObj[0];
 
-                instantiate.item_id = GetNextItemID();
+                instantiate.item_net_id = GetNextItemID();
 
                 Console.WriteLine("Instantiate packet has been received.");
+
+                registers.Add(instantiate);
                 return true;
             });
 
+            Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Delete", packetObj => {
+                DeletePacket instantiate = (DeletePacket)packetObj[0];
+                Console.WriteLine("Instantiate packet has been received.");
 
+                int idToRemove = -1;
+
+                for(int i = 0; i < registers.Count; i++)
+                {
+                    //Found packet we need to delete
+                    if (registers[i].item_net_id == instantiate.item_net_id)
+                    {
+                        idToRemove = i;
+                        break;
+                    }
+
+                }
+
+                registers.RemoveAt(idToRemove);
+                return true;
+            });
+
+        }
+
+        public void SendPacket<T>(T packet, int playerID) where T : Packet<T>
+        {
+            NetOutgoingMessage msg = server.CreateMessage();
+
+            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), playerID);
+            msg = packet.PackPacketIntoMessage(msg, packet);
+            server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
         private int GetNextPlayerID()
