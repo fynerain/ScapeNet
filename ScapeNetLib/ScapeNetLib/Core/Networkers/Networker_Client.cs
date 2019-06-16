@@ -39,8 +39,8 @@ namespace ScapeNetLib
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage(msg, packet);
+            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage( msg,  packet);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
@@ -52,7 +52,7 @@ namespace ScapeNetLib
 
             Console.WriteLine("Test packet has been sent.");
 
-            msg = pak.PackPacketIntoMessage(msg, pak);
+            msg = pak.PackPacketIntoMessage( msg, pak);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 

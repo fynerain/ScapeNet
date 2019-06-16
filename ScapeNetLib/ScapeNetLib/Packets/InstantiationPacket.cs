@@ -18,7 +18,7 @@ namespace ScapeNetLib
 
         public InstantiationPacket(string packet_name) : base(packet_name){}
 
-        public override InstantiationPacket OpenPacketFromMessage(NetIncomingMessage msg)
+        public override InstantiationPacket OpenPacketFromMessage( NetIncomingMessage msg)
         {
             InstantiationPacket packet = new InstantiationPacket(packet_name);
 
@@ -32,7 +32,7 @@ namespace ScapeNetLib
             return packet;
         }
 
-        public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg, InstantiationPacket packet)
+        public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  InstantiationPacket packet)
         {
             msg.Write(obj_name);
             msg.Write(item_id);

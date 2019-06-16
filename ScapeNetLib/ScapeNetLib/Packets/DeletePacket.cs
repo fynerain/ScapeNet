@@ -14,7 +14,7 @@ namespace ScapeNetLib
 
         public DeletePacket(string packet_name) : base(packet_name){}
 
-        public override DeletePacket OpenPacketFromMessage(NetIncomingMessage msg)
+        public override DeletePacket OpenPacketFromMessage( NetIncomingMessage msg)
         {
             DeletePacket packet = new DeletePacket(packet_name);
             packet.item_net_id = msg.ReadInt32();
@@ -22,7 +22,7 @@ namespace ScapeNetLib
             return packet;
         }
 
-        public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg, DeletePacket packet)
+        public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  DeletePacket packet)
         {
             msg.Write(item_net_id);
             return msg;

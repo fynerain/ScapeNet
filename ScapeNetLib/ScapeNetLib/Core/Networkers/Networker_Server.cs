@@ -37,8 +37,8 @@ namespace ScapeNetLib
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage(msg, packet);
+            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage( msg,  packet);
             server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
@@ -46,8 +46,8 @@ namespace ScapeNetLib
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage(msg, packet);
+            msg = packet.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage( msg,  packet);
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
 

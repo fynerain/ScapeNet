@@ -25,22 +25,22 @@ namespace ScapeNetLib
             return packet_name;
         }
 
-        public virtual T OpenPacketFromMessage(NetIncomingMessage msg) { return default(T); }
-        public virtual NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg, T packet) { return null; }
+        public virtual T OpenPacketFromMessage( NetIncomingMessage msg) { return default(T); }
+        public virtual NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  T packet) { return null; }
 
-        public NetOutgoingMessage RepackPacket(NetIncomingMessage msg, NetOutgoingMessage msgO)
+        public NetOutgoingMessage RepackPacket( NetIncomingMessage msg,  NetOutgoingMessage msgO)
         {
-            T t = OpenPacketFromMessage(msg);
-            return PackPacketIntoMessage(msgO, t);
+            T t = OpenPacketFromMessage( msg);
+            return PackPacketIntoMessage( msgO,  t);
         }
 
-        public NetOutgoingMessage AddDefaultInformationToPacket(NetOutgoingMessage msg, string packet_name)
+        public NetOutgoingMessage AddDefaultInformationToPacket( NetOutgoingMessage msg, string packet_name)
         {
             msg.Write(packet_name);
             return msg;
         }
 
-        public NetOutgoingMessage AddDefaultInformationToPacket(NetOutgoingMessage msg, string packet_name, int player_id)
+        public NetOutgoingMessage AddDefaultInformationToPacketWithId( NetOutgoingMessage msg, string packet_name, int player_id)
         {
             msg.Write(packet_name);
             msg.Write(player_id);

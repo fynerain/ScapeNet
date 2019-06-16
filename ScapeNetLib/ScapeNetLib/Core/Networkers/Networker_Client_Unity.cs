@@ -63,22 +63,11 @@ namespace ScapeNetLib
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
-            msg = packet.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage(msg, packet);
+            msg = packet.AddDefaultInformationToPacketWithId( msg, packet.Get_PacketName(), player_id);
+            msg = packet.PackPacketIntoMessage( msg,  packet);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-        public void TestSend()
-        {
-            NetOutgoingMessage msg = client.CreateMessage();
-            TestPacket pak = new TestPacket("D_Test");
-            pak.testInt = 100;
-
-
-
-            msg = pak.PackPacketIntoMessage(msg, pak);
-            client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
-        }
 
         public void OnReceive(string packet_name, Func<object[], bool> function)
         {
@@ -109,7 +98,7 @@ namespace ScapeNetLib
                         break;
                     case NetIncomingMessageType.Data:
                         string packet_name = msg.ReadString();
-                        
+                        int player_id = msg.ReadInt32();
 
                         if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_name))
                         {
@@ -117,14 +106,14 @@ namespace ScapeNetLib
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
                             bool shouldSendBack;
-
-                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
+                 
+                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0, msg.SenderConnection });
 
                             if (shouldSendBack) {
                                 NetOutgoingMessage outMsg = client.CreateMessage();
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                                MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacket");
+                                MethodInfo defaultInfoMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("AddDefaultInformationToPacketWithId");
 
                                 outMsg = defaultInfoMethod.Invoke(instance, new object[] { outMsg, packet_name, player_id }) as NetOutgoingMessage;
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
