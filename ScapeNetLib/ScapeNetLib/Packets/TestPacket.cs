@@ -14,7 +14,7 @@ namespace ScapeNetLib
 
         public TestPacket(string packet_name) : base(packet_name){}
 
-        public override TestPacket OpenPacketFromMessage( NetIncomingMessage msg)
+        public override TestPacket OpenPacketFromMessage(NetIncomingMessage msg)
         {
             TestPacket packet = new TestPacket(packet_name)
             {
@@ -24,7 +24,7 @@ namespace ScapeNetLib
             return packet;
         }
 
-        public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  TestPacket packet)
+        public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg,  TestPacket packet)
         {
             msg.Write(packet.testInt);
             return msg;

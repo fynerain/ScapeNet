@@ -73,7 +73,13 @@ namespace ScapeNetLib
 
                 Console.WriteLine("Connection packet has been received.");
 
-                foreach(InstantiationPacket ip in registers)
+
+                return false;
+            });
+
+            Packet_Register.Instance.serverPacketReceivedRegister.Add("D_OnConnect", packetObj =>
+            {
+                foreach (InstantiationPacket ip in registers)
                 {
                     SendPacket(ip, -1);
                 }

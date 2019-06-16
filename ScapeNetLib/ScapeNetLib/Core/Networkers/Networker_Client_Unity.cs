@@ -58,6 +58,9 @@ namespace ScapeNetLib
                 player_id = connectionPacket.player_id;
                 isConnectedToServer = true;
 
+                OnConnectPacket ocp = new OnConnectPacket("OnConnectPacket");
+                SendPacket(ocp);
+
                 return false;
             });
         }
@@ -65,8 +68,6 @@ namespace ScapeNetLib
         public void SendPacket<T>(T packet) where T : Packet<T>
         {
             NetOutgoingMessage msg = client.CreateMessage();
-
-           // msg = packet.AddDefaultInformationToPacketWithId( msg, packet.Get_PacketName(), player_id);
 
             msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), player_id);
             msg = packet.PackPacketIntoMessage( msg,  packet);

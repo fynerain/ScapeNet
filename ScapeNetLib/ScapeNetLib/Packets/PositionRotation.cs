@@ -18,7 +18,7 @@ namespace ScapeNetLib
 
         public PositionRotation(string packet_name) : base(packet_name){}
 
-        public override PositionRotation OpenPacketFromMessage( NetIncomingMessage msg)
+        public override PositionRotation OpenPacketFromMessage(NetIncomingMessage msg)
         {
             PositionRotation packet = new PositionRotation(packet_name);
 
@@ -32,7 +32,7 @@ namespace ScapeNetLib
             return packet;
         }
 
-        public override NetOutgoingMessage PackPacketIntoMessage( NetOutgoingMessage msg,  PositionRotation packet)
+        public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg,  PositionRotation packet)
         {
             msg.Write(packet.item_net_id);
             msg.Write(packet.isRotation);

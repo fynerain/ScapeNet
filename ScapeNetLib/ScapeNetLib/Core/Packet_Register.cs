@@ -36,13 +36,8 @@ namespace ScapeNetLib
             packetTypes.Add("D_Instantiate", typeof(InstantiationPacket));
             packetTypes.Add("D_Delete", typeof(DeletePacket));
             packetTypes.Add("D_PositionRotation", typeof(PositionRotation));
+            packetTypes.Add("D_OnConnect", typeof(OnConnectPacket));
            
         }
-
-  
-
-
-
-
     }
 }
