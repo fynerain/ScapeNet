@@ -134,6 +134,19 @@ namespace ScapeNetLib
                 return false;
             });
 
+            Packet_Register.Instance.serverPacketReceivedRegister.Add("D_PositionRotation", packetObj => {
+                PositionRotation packet = (PositionRotation)packetObj[0];
+                int playerId = (int)packetObj[1];
+                NetConnection conn = (NetConnection)packetObj[2];
+
+
+                Console.WriteLine("PosRot packet has been received.");
+
+
+                SendPacketToAll(packet, playerId);
+                return false;
+            });
+
         }
 
         public void SendPacketToAll<T>(T packet, int playerID) where T : Packet<T>
@@ -216,7 +229,7 @@ namespace ScapeNetLib
                         {
                             Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
                             object packet = null;
-                            bool shouldResend = true;
+                            bool shouldResend = false;
 
 
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
@@ -225,7 +238,10 @@ namespace ScapeNetLib
                             //If it needs to be adjusted then adjust the packet
                             if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name))
                             {
-                                shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] {packet, player_id, msg.SenderConnection });
+                                if (Packet_Register.Instance.serverPacketReceivedRegister[packet_name] == null)
+                                    shouldResend = true;
+                                else
+                                    shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] {packet, player_id, msg.SenderConnection });
                             }
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
