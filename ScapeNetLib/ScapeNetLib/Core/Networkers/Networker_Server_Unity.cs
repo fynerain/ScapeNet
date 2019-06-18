@@ -25,13 +25,12 @@ namespace ScapeNetLib
         Dictionary<NetConnection, int> players = new Dictionary<NetConnection, int>();
 
         //List of all instantiation packets sent. This will be sent to new joins to 'sync' them
-        List<InstantiationPacket> registers = new List<InstantiationPacket>();
+        List<PacketWithId<InstantiationPacket>> registers = new List<PacketWithId<InstantiationPacket>>();
 
         public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
             config.Port = port;
-
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
@@ -45,11 +44,9 @@ namespace ScapeNetLib
         {
             config.ConnectionTimeout = connection_timeout;
             config.MaximumConnections = maximum_connections;
-
             this.connection_approval_string = connection_approval_string;
 
             AddDefaultPacketReceives();
-
 
             server = new NetServer(config);
             server.Start();
@@ -60,6 +57,8 @@ namespace ScapeNetLib
         private void AddDefaultPacketReceives()
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Connection", packetObj => {
+                Console.WriteLine("Connection packet has been received.");
+
                 ConnectionPacket connectionPacket = (ConnectionPacket)packetObj[0];
                 NetConnection senderConnection = (NetConnection)packetObj[2];
              
@@ -67,21 +66,22 @@ namespace ScapeNetLib
                 int newID = GetNextPlayerID();
                 Console.WriteLine("Player ID To Send: " + newID);                          
                 players.Add(senderConnection, newID);
-
-                ConnectionPacket packet = new ConnectionPacket("D_Connection");
                 connectionPacket.player_id = newID;
 
-                Console.WriteLine("Connection packet has been received.");
-
+                SendPacketToExistingConnection(connectionPacket, senderConnection, -1);
 
                 return false;
             });
 
-            Packet_Register.Instance.serverPacketReceivedRegister.Add("D_OnConnect", packetObj =>
-            {
-                foreach (InstantiationPacket ip in registers)
+            Packet_Register.Instance.serverPacketReceivedRegister.Add("D_OnConnect", packetObj =>{
+                OnConnectPacket instantiate = (OnConnectPacket)packetObj[0];
+                int playerId = (int)packetObj[1];
+                NetConnection conn = (NetConnection)packetObj[2];
+               
+
+                foreach (PacketWithId<InstantiationPacket> ip in registers)
                 {
-                    SendPacket(ip, -1);
+                    SendPacketToExistingConnection(ip.packet, conn, ip.playerId);
                 }
 
                 return false;
@@ -90,17 +90,29 @@ namespace ScapeNetLib
 
             Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Instantiate", packetObj => {
                 InstantiationPacket instantiate = (InstantiationPacket)packetObj[0];
+                int playerId = (int)packetObj[1];
 
-                instantiate.item_net_id = GetNextItemID();
-
+                Console.WriteLine("Instantiate packet received with player from id: " + playerId);
+                instantiate.item_net_id = GetNextItemID();        
                 Console.WriteLine("Instantiate packet has been received.");
+                registers.Add(new PacketWithId<InstantiationPacket>(instantiate, playerId));
 
-                registers.Add(instantiate);
-                return true;
+                for(int i = 0; i < registers.Count; i++)
+                {
+                    Console.WriteLine("Register contains " + registers.Count + " values, " + "number " + i + " has a player id of " + registers[i].playerId);
+                }
+
+                SendPacketToAll(instantiate, playerId);
+
+                return false;
             });
 
             Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Delete", packetObj => {
                 DeletePacket instantiate = (DeletePacket)packetObj[0];
+                int playerId = (int)packetObj[1];
+                NetConnection conn = (NetConnection)packetObj[2];
+               
+
                 Console.WriteLine("Instantiate packet has been received.");
 
                 int idToRemove = -1;
@@ -108,7 +120,7 @@ namespace ScapeNetLib
                 for(int i = 0; i < registers.Count; i++)
                 {
                     //Found packet we need to delete
-                    if (registers[i].item_net_id == instantiate.item_net_id)
+                    if (registers[i].packet.item_net_id == instantiate.item_net_id)
                     {
                         idToRemove = i;
                         break;
@@ -117,18 +129,29 @@ namespace ScapeNetLib
                 }
 
                 registers.RemoveAt(idToRemove);
-                return true;
+
+                SendPacketToAll(instantiate, playerId);
+                return false;
             });
 
         }
 
-        public void SendPacket<T>(T packet, int playerID) where T : Packet<T>
+        public void SendPacketToAll<T>(T packet, int playerID) where T : Packet<T>
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
             msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), playerID);
             msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        public void SendPacketToExistingConnection<T>(T packet, NetConnection conn, int playerID) where T : Packet<T>
+        {
+            NetOutgoingMessage msg = server.CreateMessage();
+
+            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), playerID);
+            msg = packet.PackPacketIntoMessage(msg, packet);
+            server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
 
         private int GetNextPlayerID()
@@ -170,6 +193,10 @@ namespace ScapeNetLib
                             NetConnection lostConnection = msg.SenderConnection;
                             //PlayerLeft(lostConnection);
                         }
+                        if(status == NetConnectionStatus.Connected)
+                        {
+
+                        }
                         break;
                     case NetIncomingMessageType.ConnectionApproval:
                         string s = msg.ReadString();
@@ -189,7 +216,7 @@ namespace ScapeNetLib
                         {
                             Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
                             object packet = null;
-                            bool shouldSendToAll = true;
+                            bool shouldResend = true;
 
 
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
@@ -198,7 +225,7 @@ namespace ScapeNetLib
                             //If it needs to be adjusted then adjust the packet
                             if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name))
                             {
-                                shouldSendToAll = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });
+                                shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] {packet, player_id, msg.SenderConnection });
                             }
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
@@ -208,16 +235,16 @@ namespace ScapeNetLib
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
                         
                                 
-                            if (shouldSendToAll)
+                            if (shouldResend)
                             {
-                                Console.WriteLine("Sent Packet!");
+                                Console.WriteLine("Sent Packet To Everyone!");
                                 server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
                             }
-                            else
-                            {
-                                Console.WriteLine("Sent Packet!");
-                                server.SendMessage(outMsg, msg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
-                            }
+                           // else
+                          //  {
+                            ///    Console.WriteLine("Sent Packet To Sender!");
+                            //    server.SendMessage(outMsg, msg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
+                           // }
                         }
 
                         break;
@@ -229,6 +256,10 @@ namespace ScapeNetLib
             }
         }
 
+        void OnNewConnection()
+        {
+
+        }
 
     }
 }

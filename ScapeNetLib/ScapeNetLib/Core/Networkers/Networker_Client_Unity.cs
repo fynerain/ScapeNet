@@ -58,14 +58,14 @@ namespace ScapeNetLib
                 player_id = connectionPacket.player_id;
                 isConnectedToServer = true;
 
-                OnConnectPacket ocp = new OnConnectPacket("OnConnectPacket");
-                SendPacket(ocp);
+                OnConnectPacket ocp = new OnConnectPacket("D_OnConnect");
+                SendPacketToServer(ocp);
 
                 return false;
             });
         }
 
-        public void SendPacket<T>(T packet) where T : Packet<T>
+        public void SendPacketToServer<T>(T packet) where T : Packet<T>
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
@@ -85,7 +85,7 @@ namespace ScapeNetLib
             ConnectionPacket conPacket = new ConnectionPacket("D_Connection");
             conPacket.player_id = -1;
 
-            SendPacket(conPacket);
+            SendPacketToServer(conPacket);
         }
 
         public void Update()
@@ -113,18 +113,8 @@ namespace ScapeNetLib
                             object packet = openMethod.Invoke(instance, new object[] { msg });
                             bool shouldSendBack;
                  
-                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0, msg.SenderConnection });
-
-                            if (shouldSendBack) {
-                                NetOutgoingMessage outMsg = client.CreateMessage();
-
-                                MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                              
-                                outMsg = PacketHelper.AddDefaultInformationToPacketWithId(outMsg, packet_name, player_id);
-                                outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
-
-                                client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);
-                             }
+                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });
+                         
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:

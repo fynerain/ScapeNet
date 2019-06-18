@@ -33,21 +33,21 @@ namespace ScapeNetLib
         }
 
 
-        public void SendPacket<T>(T packet) where T : Packet<T>
+        public void SendPacketToAll<T>(T packet) where T : Packet<T>
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage( msg,  packet);
+            msg = PacketHelper.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-        public void SendPacket<T>(T packet, NetConnection conn) where T : Packet<T>
+        public void SendPacketToExistingConnection<T>(T packet, NetConnection conn) where T : Packet<T>
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacket( msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage( msg,  packet);
+            msg = PacketHelper.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
 
@@ -106,11 +106,11 @@ namespace ScapeNetLib
 
                             MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                             object packet = openMethod.Invoke(instance, new object[] { msg });
-                            bool shouldSendToAll = false;
+                            bool shouldResend = false;
 
                             //If it needs to be adjusted then adjust the packet
-                            if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name)) {                     
-                                shouldSendToAll = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
+                            if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name)) {
+                                shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
                             }
 
                             MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
@@ -119,14 +119,14 @@ namespace ScapeNetLib
                             outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
 
-                            if (shouldSendToAll)
+                            if (shouldResend)
                             {
                                 server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
                             }
-                            else
-                            {
-                                server.SendMessage(outMsg, msg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
-                            }
+                            //else
+                           // {
+                            //    server.SendMessage(outMsg, msg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
+                            //}
                         }
                        
                         break;

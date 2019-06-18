@@ -14,7 +14,7 @@ namespace ServerTest
         {
             Networker_Server_Unity srv = new Networker_Server_Unity();
             srv.Setup("MS", 7777);
-            srv.HostServer(100, 2, "secret");
+            srv.HostServer(100, 10, "secret");
 
             //srv.OnReceive("D_Register", received => {
             //    RegisterPacket rp = (RegisterPacket)received[0];

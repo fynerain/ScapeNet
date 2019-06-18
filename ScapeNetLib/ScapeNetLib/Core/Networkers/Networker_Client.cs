@@ -35,7 +35,7 @@ namespace ScapeNetLib
             client.Connect(ip, port, approval);
         }
 
-        public void SendPacket<T>(T packet) where T : Packet<T>
+        public void SendPacketToServer<T>(T packet) where T : Packet<T>
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
@@ -90,18 +90,7 @@ namespace ScapeNetLib
                             bool shouldSendBack;
 
                             shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
-
-                            if (shouldSendBack)
-                            {
-                                NetOutgoingMessage outMsg = client.CreateMessage();
-
-                                MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                            
-                                outMsg = PacketHelper.AddDefaultInformationToPacket(outMsg, packet_name);
-                                outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
-
-                                client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);
-                            }
+                          
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
