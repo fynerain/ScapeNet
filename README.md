@@ -1,7 +1,7 @@
 # ScapeNet
 A custom solution built on Lidgren for video game networking in C#, geared towards Unity in the wake of UNET's demise.
 
-ScapeNet is a small library, which allows the sending of organised sets of data in the form of 'packets', these make sending data more intuitive than the current system provided by Lidren. The goal of ScapeNet is to make rapid prototyping of multiplayer games, fromn a lower level perspective, a more pleasant and intuitive process. ScapeNet is by default clientside orientated, but allows detailing on the server to make it more, if not fully serverside; however this must be done on a game to game basis.
+ScapeNet is a small library, which allows the sending of organised sets of data in the form of 'packets', these make sending data more intuitive than the current system provided by Lidgren. The goal of ScapeNet is to make rapid prototyping of multiplayer games, fromn a lower level perspective, a more pleasant and intuitive process. ScapeNet is by default clientside orientated, but allows detailing on the server to make it more, if not fully serverside; however this must be done on a game to game basis.
 
 # The Idea
 I wanted a no nonsense, easy to use lower-level library for some small games i am developing in Unity. I felt using a string based identity system to register packets would be a fun and unique idea, allowing any type of packet to be setup and sent.
