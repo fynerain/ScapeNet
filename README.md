@@ -8,10 +8,9 @@ I wanted a no nonsense, easy to use lower-level library for some small games i a
 
 # Current Abilities
 
-- Able to send and receive packets on either the client or server.
-- Able to customise behaviour apon receiving packet, on either the client or server.
 - Able to create custom packets, wich can hold any data Lidgren is able to send.
-- Able to provide unique player id's and object id's, as well as keep those synced between all clients. (Unity_Networker)
+- Able to send and receive packets on either the client or server, and perfrom fully custom behaviours upon receving said packet.
+- System to provide unique player id's and object id's, as well as keep those synced between all clients, as well as handle player joins and disconnects. (Unity_Networker)
 
 # Limitations
 
