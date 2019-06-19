@@ -6,7 +6,7 @@ ScapeNet is a small library, which allows the sending of organised sets of data 
 # The Idea
 I wanted a no nonesense, easy to use lower-level library for some small games i am developing in Unity. I felt using a string based identity system to register packets would be a fun and unique idea, allowing any type of packet to be setup and sent.
 
-# Current Abilities of ScapeNet
+# Current Abilities
 
 - Able to send and receive packets on either the client or server.
 - Able to customise behaviour apon receiving packet, on either the client or server.
@@ -19,3 +19,4 @@ There are a number of limitations, as well as complications in taking the approa
 
 - Packet class definitions must be the same in both the client and server.
 - Packets classes are defined in fairly similar and strict ways no matter the desired implementation.
+- Some Lidgren knowledge is still required for certain things. It's especially needed for custom server and client implementations.
