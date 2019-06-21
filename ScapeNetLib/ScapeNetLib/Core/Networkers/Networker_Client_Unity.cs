@@ -17,7 +17,7 @@ namespace ScapeNetLib
         int player_id = -1;
         bool isConnectedToServer = false;
 
-        public void Setup(string network_title, int port)
+        public void Setup(string network_title)
         {
             player_id = -1;
             isConnectedToServer = false;
@@ -26,6 +26,11 @@ namespace ScapeNetLib
 
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             config.EnableMessageType(NetIncomingMessageType.Data);
+        }
+
+        public void Setup(string network_title, int port)
+        {
+            Setup(network_title);
         }
 
         public void StartClient(string ip, int port, string connection_approval_string)
@@ -128,5 +133,7 @@ namespace ScapeNetLib
                 client.Recycle(msg);
             }
         }
+
+      
     }
 }

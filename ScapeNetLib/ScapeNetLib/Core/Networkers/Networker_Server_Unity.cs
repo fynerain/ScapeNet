@@ -35,6 +35,11 @@ namespace ScapeNetLib
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
+        public void Setup(string network_title)
+        {
+            Setup(network_title, 7777);
+        }
+
         public void OnReceive(string packet_name, Func<object[], bool> function)
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);

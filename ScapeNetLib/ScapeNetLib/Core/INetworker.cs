@@ -11,6 +11,7 @@ namespace ScapeNetLib
 {
     public interface INetworker
     {
+       void Setup(string network_title);
        void Setup(string network_title, int port);
        void Update();
     }

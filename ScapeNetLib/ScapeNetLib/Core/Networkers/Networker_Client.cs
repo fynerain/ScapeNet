@@ -17,12 +17,17 @@ namespace ScapeNetLib
         NetClient client;
         NetPeerConfiguration config;     
 
-        public void Setup(string network_title, int port)
+        public void Setup(string network_title)
         {
             config = new NetPeerConfiguration(network_title);
 
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             config.EnableMessageType(NetIncomingMessageType.Data);
+        }
+
+        public void Setup(string network_title, int port)
+        {
+            Setup(network_title);
         }
 
         public void StartClient(string ip, int port, string connection_approval_string)
