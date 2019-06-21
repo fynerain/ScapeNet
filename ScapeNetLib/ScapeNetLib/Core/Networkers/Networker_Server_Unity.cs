@@ -62,6 +62,9 @@ namespace ScapeNetLib
         private void AddDefaultPacketReceives()
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Connection", packetObj => {
+
+                PacketData<ConnectionPacket> data = new PacketData<ConnectionPacket>(packetObj);
+               
                 Console.WriteLine("Connection packet has been received.");
 
                 ConnectionPacket connectionPacket = (ConnectionPacket)packetObj[0];

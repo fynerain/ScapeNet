@@ -52,6 +52,7 @@
     <Compile Include="Core\Packet.cs" />
     <Compile Include="Core\PacketHelper.cs" />
     <Compile Include="Core\PacketWithId.cs" />
+    <Compile Include="Core\PacketData.cs" />
     <Compile Include="Packets\OnConnectPacket.cs" />
     <Compile Include="Packets\ConnectionPacket.cs" />
     <Compile Include="Packets\DeletePacket.cs" />

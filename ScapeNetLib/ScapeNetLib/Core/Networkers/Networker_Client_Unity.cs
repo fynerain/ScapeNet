@@ -75,7 +75,7 @@ namespace ScapeNetLib
             NetOutgoingMessage msg = client.CreateMessage();
 
             msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), player_id);
-            msg = packet.PackPacketIntoMessage( msg,  packet);
+            msg = packet.PackPacketIntoMessage(msg,  packet);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
