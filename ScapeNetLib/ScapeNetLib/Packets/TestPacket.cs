@@ -10,7 +10,7 @@ namespace ScapeNetLib
 {
     public class TestPacket : Packet<TestPacket>
     {
-        public int testInt;
+        public string testString;
 
         public TestPacket(string packet_name) : base(packet_name){}
 
@@ -18,7 +18,7 @@ namespace ScapeNetLib
         {
             TestPacket packet = new TestPacket(packet_name)
             {
-                testInt = msg.ReadInt32()
+                testString = msg.ReadString()
             };
 
             return packet;
@@ -26,7 +26,7 @@ namespace ScapeNetLib
 
         public override NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg,  TestPacket packet)
         {
-            msg.Write(packet.testInt);
+            msg.Write(packet.testString);
             return msg;
         }
        

@@ -49,18 +49,6 @@ namespace ScapeNetLib
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-        public void TestSend()
-        {
-            NetOutgoingMessage msg = client.CreateMessage();
-            TestPacket pak = new TestPacket("D_Test");
-            pak.testInt = 100;
-
-            Console.WriteLine("Test packet has been sent.");
-
-            msg = pak.PackPacketIntoMessage( msg, pak);
-            client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
-        }
-
         public void OnReceive(string packet_name, Func<object[], bool> function)
         {
             Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_name, function);
