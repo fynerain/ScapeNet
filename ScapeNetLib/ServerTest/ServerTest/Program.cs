@@ -16,17 +16,25 @@ namespace ServerTest
             srv.Setup("MS", 7777);
             srv.HostServer(100, 10, "secret");
 
+            ScapeNet.AddPacketType("Test", typeof(Test));
+
+            Test t = new Test();
+            t.testStr = "Cool Test!";
+
+           
+
             //srv.OnReceive("D_Register", received => {
             //    RegisterPacket rp = (RegisterPacket)received[0];
-             //   int players_id = (int)received[1];
-              //  Console.WriteLine(rp.obj_name);
+            //   int players_id = (int)received[1];
+            //  Console.WriteLine(rp.obj_name);
 
-             //   return true; //We don't want this packet to be send to the server.
-        //    });
+            //   return true; //We don't want this packet to be send to the server.
+            //    });
 
             while (true)
             {
                 srv.Update();
+                srv.SendPacketToAll(t, -1);
             }
         }
     }

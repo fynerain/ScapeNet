@@ -7,7 +7,11 @@ public class ScapeNet_Spawner : ScapeNet_Behaviour
     [Header("Item must be in clients networkable list.")]
     public GameObject itemToSpawn;
 
+    public bool spawnOnClient = false;
+
     public override void OnNetworkConnect(){
-        client.SpawnServersideRequest(itemToSpawn.name, gameObject.transform.position);
+
+        if(spawnOnClient)
+             client.SpawnServersideRequest(itemToSpawn.name, gameObject.transform.position);
     }
 }

@@ -16,37 +16,19 @@ namespace ClientTest
             cli.Setup("MS", 7777);
             cli.StartClient("localhost", 7777, "secret");
 
-            cli.OnReceive("D_Test", packetObj => {
+            ScapeNet.AddPacketType("Test", typeof(Test));
 
-                TestPacket testPacket = (TestPacket)packetObj[0];
-                Console.WriteLine("Packet stored the value: " + testPacket.testInt);
+            cli.OnReceive("Test", packetObj => {
+                PacketData<Test> test = new PacketData<Test>(packetObj);
+                Console.WriteLine("Received: " + test.packet.testStr);
 
                 return true;
             });
 
-            cli.OnReceive("D_Register", received => {
-                RegisterPacket rp = (RegisterPacket)received[0];
-                int players_id = (int)received[1];
-
-                string obj_name = rp.obj_name;
-                int obj_net_id = rp.item_net_id;
-
-                if (obj_net_id != -1)
-                {
-                    //SpawnLocalCopyOfObject(players_id, obj_name, obj_net_id, new Vector3(rp.x, rp.y, rp.z));
-                    Console.WriteLine("Reigster Packet Information: " + players_id + " " + obj_net_id + " XYZ: " + rp.x + "," + rp.y + "," + rp.z);
-                }
-
-                return false; //We don't want this packet to be send to the server.
-            });
-
-            RegisterPacket pack = new RegisterPacket("D_Register");
-            pack.
 
             while (true)
             {
                 cli.Update();
-                cli.TestSend();
             }
 
 

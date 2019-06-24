@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ScapeNetLib
 {
-    class PacketWithId<T> where T : Packet<T>
+    internal class PacketWithId<T> where T : Packet<T>
     {
         public T packet = null;
         public int playerId = -1;

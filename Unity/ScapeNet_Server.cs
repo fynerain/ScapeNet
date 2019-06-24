@@ -15,7 +15,7 @@ public class ScapeNet_Server : MonoBehaviour
 
         server = new Networker_Server_Unity();
 
-        server.Setup("Test", 7777);
+        server.Setup("Forts", 7777);
         server.HostServer(100,10, "secret");
     }
    

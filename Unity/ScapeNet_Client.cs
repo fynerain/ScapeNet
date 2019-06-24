@@ -16,10 +16,10 @@ public class ScapeNet_Client : MonoBehaviour
     void Awake(){
         DontDestroyOnLoad(gameObject);
 
-		AddPacketTypes();
+
 
         client = new Networker_Client_Unity();
-        client.Setup("Test", 7777);
+        client.Setup("Forts", 7777);
 
             client.OnReceive("D_Instantiate", received => {
                 InstantiationPacket rp = (InstantiationPacket)received[0];
@@ -36,6 +36,8 @@ public class ScapeNet_Client : MonoBehaviour
             });
 
             client.OnReceive("D_PositionRotation", received => {
+
+                Debug.Log("Received posrot");
 
                 PositionRotation rp = (PositionRotation)received[0];
                 int players_id = (int)received[1];
@@ -72,10 +74,6 @@ public class ScapeNet_Client : MonoBehaviour
                 return false; 
             });
     }
-	
-	void AddPacketTypes(){
-		//Add packet types here.
-	}
 
     void Start(){
         client.StartClient("localhost", 7777, "secret");

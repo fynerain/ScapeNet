@@ -12,7 +12,7 @@ using Lidgren.Network;
 /// </summary>
 namespace ScapeNetLib
 {
-    class PacketData<T>
+    public class PacketData<T>
     {
         public T packet;
         public int playerId;

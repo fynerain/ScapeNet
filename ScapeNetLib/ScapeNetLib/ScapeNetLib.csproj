@@ -51,6 +51,7 @@
     <Compile Include="Core\Networkers\Networker_Server.cs" />
     <Compile Include="Core\Packet.cs" />
     <Compile Include="Core\PacketHelper.cs" />
+    <Compile Include="Core\PacketHL.cs" />
     <Compile Include="Core\PacketWithId.cs" />
     <Compile Include="Core\PacketData.cs" />
     <Compile Include="Packets\OnConnectPacket.cs" />
