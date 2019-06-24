@@ -15,7 +15,8 @@ public class ScapeNet_SyncPositionRotation : ScapeNet_Behaviour
     public override void Start(){
         base.Start();
 
-        StartCoroutine(SendPositionAndRotation());
+        if(!isServer)
+            StartCoroutine(SendPositionAndRotation());
     }
 
     public override void Update(){
