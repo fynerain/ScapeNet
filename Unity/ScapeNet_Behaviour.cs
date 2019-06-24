@@ -14,12 +14,14 @@ public class ScapeNet_Behaviour : MonoBehaviour
     protected bool isConnected = false;
     protected bool isServer = false;
 
-    #if UNITY_SERVER
-        isServer = true;
-    #endif
-
+ 
     // Start is called before the first frame update
     public virtual void Start(){
+
+        #if UNITY_SERVER
+            isServer = true;
+        #endif
+
         client = GameObject.FindGameObjectWithTag("Client").GetComponent<ScapeNet_Client>();
         server = GameObject.FindGameObjectWithTag("Server").GetComponent<ScapeNet_Server>();
     }
