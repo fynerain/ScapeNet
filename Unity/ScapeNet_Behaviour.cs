@@ -14,6 +14,8 @@ public class ScapeNet_Behaviour : MonoBehaviour
     protected bool isConnected = false;
     protected bool isServer = false;
 
+    private bool hasServerStarted = false;
+
  
     // Start is called before the first frame update
     public virtual void Start(){
@@ -36,7 +38,10 @@ public class ScapeNet_Behaviour : MonoBehaviour
                 }
         }else
         {
-            OnServerStart();
+            if(!hasServerStarted){
+                 OnServerStart();
+                 hasServerStarted = true;
+            }
         }
     }
 

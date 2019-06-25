@@ -173,17 +173,22 @@ namespace ScapeNetLib
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
 
-        private int GetNextPlayerID()
+        public int GetNextPlayerID()
         {
             currentPlayerID++;
             return currentPlayerID;
         }
 
 
-        private int GetNextItemID()
+        public int GetNextItemID()
         {
             currentItemID++;
             return currentItemID;
+        }
+
+        public void AddRegister(InstantiationPacket packet, int playerId) 
+        {
+            registers.Add(new PacketWithId<InstantiationPacket>(packet, playerId));
         }
 
         public void Update()
