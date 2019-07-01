@@ -30,6 +30,11 @@ namespace ScapeNetLib
             Setup(network_title);
         }
 
+        public void Close()
+        {
+            client.Shutdown("bye");
+        }
+
         public void StartClient(string ip, int port, string connection_approval_string)
         {
             client = new NetClient(config);

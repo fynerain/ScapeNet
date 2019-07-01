@@ -16,32 +16,30 @@ public class ScapeNet_Behaviour : MonoBehaviour
 
     private bool hasServerStarted = false;
 
- 
+
     // Start is called before the first frame update
     public virtual void Start(){
 
-        #if UNITY_SERVER
-            isServer = true;
-        #endif
+        isServer = GameObject.FindObjectOfType<ScapeNet_Identifier>().isServer;
 
-        client = GameObject.FindGameObjectWithTag("Client").GetComponent<ScapeNet_Client>();
-        server = GameObject.FindGameObjectWithTag("Server").GetComponent<ScapeNet_Server>();
+        client = GameObject.FindObjectOfType<ScapeNet_Client>();
+        server = GameObject.FindObjectOfType<ScapeNet_Server>();
     }
 
     // Update is called once per frame
     public virtual void Update(){
-        if(!isServer){
+
+          if(client.enabled == true){
             if(!isConnected)
                 if(client.IsClientConnected()){
                     OnNetworkConnect();
                     isConnected = true;
                 }
-        }else
-        {
-            if(!hasServerStarted){
-                 OnServerStart();
-                 hasServerStarted = true;
-            }
+          }
+        
+        if(server.enabled == true && hasServerStarted == false){
+            OnServerStart();
+            hasServerStarted = true;            
         }
     }
 

@@ -16,42 +16,31 @@ public class ScapeNet_Client : MonoBehaviour
     void Awake(){
         DontDestroyOnLoad(gameObject);
 
-
-
         client = new Networker_Client_Unity();
         client.Setup("Forts", 7777);
 
             client.OnReceive("D_Instantiate", received => {
-                InstantiationPacket rp = (InstantiationPacket)received[0];
-                int players_id = (int)received[1];
+                PacketData<InstantiationPacket> data = new PacketData<InstantiationPacket>(received);
 
-                Debug.Log("Player it was sent from " + players_id);
-                Debug.Log("Items network id " + rp.item_net_id);
-
-                if(rp.item_net_id != -1){
-                    SpawnLocalCopyOfObject(players_id, rp.obj_name, rp.item_net_id, new Vector3(rp.x, rp.y, rp.z));
+                if(data.packet.item_net_id != -1){
+                    SpawnLocalCopyOfObject(data.playerId, data.packet.obj_name, data.packet.item_net_id, new Vector3(data.packet.x, data.packet.y, data.packet.z));
                 }
                     
                 return false; 
             });
 
+
             client.OnReceive("D_PositionRotation", received => {
+                PacketData<PositionRotation> data = new PacketData<PositionRotation>(received);
 
-                Debug.Log("Received posrot");
-
-                PositionRotation rp = (PositionRotation)received[0];
-                int players_id = (int)received[1];
-
-                Debug.LogWarning("PositionRot received from player " + players_id);
-
-                if(client.GetPlayerID() != players_id){
-                    GameObject go = FindSpawnedNetObject(rp.item_net_id);
+                if(client.GetPlayerID() != data.playerId){
+                    GameObject go = FindSpawnedNetObject(data.packet.item_net_id);
 
                     if(go != null){
-                        if(rp.isRotation)
-                            go.transform.rotation = Quaternion.Euler(rp.x, rp.y, rp.z);
+                        if(data.packet.isRotation)
+                            go.transform.rotation = Quaternion.Euler(data.packet.x, data.packet.y, data.packet.z);
                         else
-                            go.transform.position = new Vector3(rp.x, rp.y, rp.z);                                      
+                            go.transform.position = new Vector3(data.packet.x, data.packet.y, data.packet.z);                                      
                     }
                 }
                     
@@ -59,13 +48,11 @@ public class ScapeNet_Client : MonoBehaviour
             });
 
             client.OnReceive("D_Delete", received => {
-                DeletePacket rp = (DeletePacket)received[0];
-                int players_id = (int)received[1];
-
+                PacketData<DeletePacket> data = new PacketData<DeletePacket>(received);
                 GameObject toDelete = null;
 
                 foreach(GameObject go in currentAliveNetworkedObjects)
-                    if(go.GetComponent<ScapeNet_Network_ID>().object_id == rp.item_net_id)
+                    if(go.GetComponent<ScapeNet_Network_ID>().object_id == data.packet.item_net_id)
                         toDelete = go;
 
                 currentAliveNetworkedObjects.Remove(toDelete);
@@ -98,21 +85,21 @@ public class ScapeNet_Client : MonoBehaviour
     void SpawnLocalCopyOfObject(int players_id, string object_name, int obj_net_id, Vector3 position)
     {
             GameObject newObj = null;
-
             newObj = Instantiate(FindNetObject(object_name), position, Quaternion.identity);
             newObj.GetComponent<ScapeNet_Network_ID>().players_id = players_id;
             newObj.GetComponent<ScapeNet_Network_ID>().object_id = obj_net_id;
 
+            //Server spawned.
+            if(players_id == 999 && newObj.GetComponent<ScapeNet_Network_Disable>() != null)
+                newObj.GetComponent<ScapeNet_Network_Disable>().Disable();
+
         //If a player is being spawned
         if (object_name == "Player")
         {     
-            //Debug.LogError("Current client id: " + client.GetPlayerID());
-            //Debug.LogError("Packed from player with id: " + players_id);
             //Another player - disable their controls
             if (client.GetPlayerID() != players_id)
             {
                 newObj.GetComponent<ScapeNet_Network_Disable>().Disable();
-                newObj.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
             }
             else
             {
@@ -151,7 +138,19 @@ public class ScapeNet_Client : MonoBehaviour
         return null;
     }
 
+    public void DeleteNetworkedObject(int obj_net_id){
+        DeletePacket packet = new DeletePacket("D_Delete");
+        packet.item_net_id = obj_net_id;
+        
+        client.SendPacketToServer(packet);
+    }
+
     public GameObject GetLocalPlayer(){
         return localPlayer;
+    }
+
+    public void OnApplicationQuit()
+    {
+        client.Close();
     }
 }

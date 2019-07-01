@@ -27,6 +27,8 @@ namespace ScapeNetLib
         //List of all instantiation packets sent. This will be sent to new joins to 'sync' them
         List<PacketWithId<InstantiationPacket>> registers = new List<PacketWithId<InstantiationPacket>>();
 
+        Func<object[], bool> funcOnNewConnection = null;
+
         public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
@@ -40,9 +42,18 @@ namespace ScapeNetLib
             Setup(network_title, 7777);
         }
 
+        public void Close()
+        {
+            server.Shutdown("bye");
+        }
+
         public void OnReceive(string packet_name, Func<object[], bool> function)
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);
+        }
+
+        public void OnNewConnection(Func<object[], bool> func){
+            funcOnNewConnection = func;
         }
     
         public void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
@@ -89,6 +100,9 @@ namespace ScapeNetLib
                 {
                     SendPacketToExistingConnection(ip.packet, conn, ip.playerId);
                 }
+
+                if (funcOnNewConnection != null)
+                    funcOnNewConnection.Invoke(packetObj);
 
                 return false;
             });
@@ -281,11 +295,6 @@ namespace ScapeNetLib
                 }
                 server.Recycle(msg);
             }
-        }
-
-        void OnNewConnection()
-        {
-
         }
 
     }

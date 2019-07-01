@@ -32,6 +32,11 @@ namespace ScapeNetLib
             Setup(network_title, 7777);
         }
 
+        public void Close()
+        {
+            server.Shutdown("bye");
+        }
+
         public void OnReceive(string packet_name, Func<object[], bool> function)
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);
