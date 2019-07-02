@@ -67,21 +67,18 @@ namespace ScapeNetLib
             server = new NetServer(config);
             server.Start();
 
-            Console.WriteLine("Server is up.");
+            Console.WriteLine("[ScapeNet] Server is up.");
         }
 
         private void AddDefaultPacketReceives()
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Connection", packetObj => {
                
-                Console.WriteLine("Connection packet has been received.");
-
                 ConnectionPacket connectionPacket = (ConnectionPacket)packetObj[0];
                 NetConnection senderConnection = (NetConnection)packetObj[2];
              
                 //Register Player
-                int newID = GetNextPlayerID();
-                Console.WriteLine("Player ID To Send: " + newID);                          
+                int newID = GetNextPlayerID();                       
                 players.Add(senderConnection, newID);
                 connectionPacket.player_id = newID;
 
@@ -112,9 +109,7 @@ namespace ScapeNetLib
                 InstantiationPacket instantiate = (InstantiationPacket)packetObj[0];
                 int playerId = (int)packetObj[1];
 
-                Console.WriteLine("Instantiate packet received with player from id: " + playerId);
                 instantiate.item_net_id = GetNextItemID();        
-                Console.WriteLine("Instantiate packet has been received.");
                 registers.Add(new PacketWithId<InstantiationPacket>(instantiate, playerId));
 
                 for(int i = 0; i < registers.Count; i++)
@@ -130,10 +125,7 @@ namespace ScapeNetLib
             Packet_Register.Instance.serverPacketReceivedRegister.Add("D_Delete", packetObj => {
                 DeletePacket instantiate = (DeletePacket)packetObj[0];
                 int playerId = (int)packetObj[1];
-                NetConnection conn = (NetConnection)packetObj[2];
-               
-
-                Console.WriteLine("Instantiate packet has been received.");
+                NetConnection conn = (NetConnection)packetObj[2];             
 
                 int idToRemove = -1;
 
@@ -158,10 +150,6 @@ namespace ScapeNetLib
                 PositionRotation packet = (PositionRotation)packetObj[0];
                 int playerId = (int)packetObj[1];
                 NetConnection conn = (NetConnection)packetObj[2];
-
-
-                Console.WriteLine("PosRot packet has been received.");
-
 
                 SendPacketToAll(packet, playerId);
                 return false;
@@ -248,7 +236,7 @@ namespace ScapeNetLib
                         int player_id = msg.ReadInt32();
                         NetOutgoingMessage outMsg = server.CreateMessage();
 
-                        Console.WriteLine("Message Received In Server: " + packet_name + " packet");
+                        //Console.WriteLine("Message Received In Server: " + packet_name + " packet");
 
                         if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name))
                         {

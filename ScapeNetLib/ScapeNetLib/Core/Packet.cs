@@ -34,8 +34,8 @@ namespace ScapeNetLib
 
         public NetOutgoingMessage RepackPacket(NetIncomingMessage msg,  NetOutgoingMessage msgO)
         {
-            T t = OpenPacketFromMessage( msg);
-            return PackPacketIntoMessage( msgO,  t);
+            T t = OpenPacketFromMessage(msg);
+            return PackPacketIntoMessage(msgO,  t);
         }
     }
 }

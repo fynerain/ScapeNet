@@ -5,13 +5,13 @@ using UnityEngine;
 
 using ScapeNetLib;
 
+[RequireComponent(typeof(ScapeNet_Identifier))]
 public class ScapeNet_Client : MonoBehaviour
 {
-    public List<GameObject> networkableObjects = new List<GameObject>();
-    public List<GameObject> currentAliveNetworkedObjects = new List<GameObject>();
 
     private GameObject localPlayer = null;
     private Networker_Client_Unity client;
+    private ScapeNet_Identifier identifier;
 
     void Awake(){
         DontDestroyOnLoad(gameObject);
@@ -51,11 +51,13 @@ public class ScapeNet_Client : MonoBehaviour
                 PacketData<DeletePacket> data = new PacketData<DeletePacket>(received);
                 GameObject toDelete = null;
 
-                foreach(GameObject go in currentAliveNetworkedObjects)
-                    if(go.GetComponent<ScapeNet_Network_ID>().object_id == data.packet.item_net_id)
+                foreach(GameObject go in identifier.currentAliveNetworkedObjects)
+                    if(go != null && go.GetComponent<ScapeNet_Network_ID>().object_id == data.packet.item_net_id){
                         toDelete = go;
+                        break;
+                    }
 
-                currentAliveNetworkedObjects.Remove(toDelete);
+                identifier.currentAliveNetworkedObjects.Remove(toDelete);
                 Destroy(toDelete);
             
                 return false; 
@@ -63,7 +65,8 @@ public class ScapeNet_Client : MonoBehaviour
     }
 
     void Start(){
-        client.StartClient("localhost", 7777, "secret");
+        identifier = GetComponent<ScapeNet_Identifier>();
+        client.StartClient("localhost", 7777, "secret");    
     }
 
     void Update(){     
@@ -89,7 +92,7 @@ public class ScapeNet_Client : MonoBehaviour
             newObj.GetComponent<ScapeNet_Network_ID>().players_id = players_id;
             newObj.GetComponent<ScapeNet_Network_ID>().object_id = obj_net_id;
 
-            //Server spawned.
+            //If its a server spawned object
             if(players_id == 999 && newObj.GetComponent<ScapeNet_Network_Disable>() != null)
                 newObj.GetComponent<ScapeNet_Network_Disable>().Disable();
 
@@ -107,10 +110,10 @@ public class ScapeNet_Client : MonoBehaviour
             }
         }
 
-        currentAliveNetworkedObjects.Add(newObj); 
+        identifier.currentAliveNetworkedObjects.Add(newObj); 
     }
 
-    public void SpawnServersideRequest(string obj_name, Vector3 position){
+    public void SpawnRequest(string obj_name, Vector3 position){
 
         InstantiationPacket packet = new InstantiationPacket("D_Instantiate");
         packet.obj_name = obj_name;
@@ -123,7 +126,7 @@ public class ScapeNet_Client : MonoBehaviour
     }
 
     public GameObject FindNetObject(string object_name){
-        foreach(GameObject go in networkableObjects)
+        foreach(GameObject go in identifier.networkableObjects)
             if(go.name == object_name)
                 return go;
 
@@ -131,8 +134,8 @@ public class ScapeNet_Client : MonoBehaviour
     }
 
     public GameObject FindSpawnedNetObject(int obj_net_id){
-          foreach(GameObject go in currentAliveNetworkedObjects)
-            if(go.GetComponent<ScapeNet_Network_ID>().object_id == obj_net_id)
+          foreach(GameObject go in identifier.currentAliveNetworkedObjects)
+            if(go != null && go.GetComponent<ScapeNet_Network_ID>().object_id == obj_net_id)
                 return go;
 
         return null;

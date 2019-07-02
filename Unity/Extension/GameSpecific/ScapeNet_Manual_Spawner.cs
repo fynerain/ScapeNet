@@ -8,7 +8,7 @@ public class ScapeNet_Manual_Spawner : ScapeNet_Behaviour
     public GameObject itemToSpawn;
 
     public void SpawnObjectServerside(int playerId){
-          server.SpawnObject(itemToSpawn.name, gameObject.transform.position, playerId);
+          server.IssueSpawnCommand(itemToSpawn.name, gameObject.transform.position, playerId);
     }
 
     public void OnEnable(){

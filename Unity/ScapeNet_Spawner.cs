@@ -11,11 +11,11 @@ public class ScapeNet_Spawner : ScapeNet_Behaviour
 
     public override void OnNetworkConnect(){
         if(!serverside && client.IsClientConnected())
-            client.SpawnServersideRequest(itemToSpawn.name, gameObject.transform.position);      
+            client.SpawnRequest(itemToSpawn.name, gameObject.transform.position);      
     }
 
     public override void OnServerStart(){
         if(serverside && isServer)
-            server.SpawnObject(itemToSpawn.name, gameObject.transform.position);
+            server.IssueSpawnCommand(itemToSpawn.name, gameObject.transform.position);
     }
 }
