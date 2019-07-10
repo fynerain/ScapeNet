@@ -14,5 +14,6 @@ namespace ScapeNetLib
        void Setup(string network_title);
        void Setup(string network_title, int port);
        void Update();
+       void Close();
     }
 }

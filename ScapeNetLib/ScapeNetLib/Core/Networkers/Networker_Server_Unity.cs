@@ -23,11 +23,12 @@ namespace ScapeNetLib
 
         //List of all players, with their id, and respective connection
         Dictionary<NetConnection, int> players = new Dictionary<NetConnection, int>();
-
+        
         //List of all instantiation packets sent. This will be sent to new joins to 'sync' them
         List<PacketWithId<InstantiationPacket>> registers = new List<PacketWithId<InstantiationPacket>>();
 
         Func<object[], bool> funcOnNewConnection = null;
+        Func<object[], bool> funcOnLeaveConnection = null;
 
         public void Setup(string network_title, int port)
         {
@@ -55,7 +56,12 @@ namespace ScapeNetLib
         public void OnNewConnection(Func<object[], bool> func){
             funcOnNewConnection = func;
         }
-    
+
+        public void OnLeaveConnection(Func<object[], bool> func)
+        {
+            funcOnLeaveConnection = func;
+        }
+
         public void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
         {
             config.ConnectionTimeout = connection_timeout;
@@ -112,11 +118,6 @@ namespace ScapeNetLib
                 instantiate.item_net_id = GetNextItemID();        
                 registers.Add(new PacketWithId<InstantiationPacket>(instantiate, playerId));
 
-                for(int i = 0; i < registers.Count; i++)
-                {
-                    Console.WriteLine("Register contains " + registers.Count + " values, " + "number " + i + " has a player id of " + registers[i].playerId);
-                }
-
                 SendPacketToAll(instantiate, playerId);
 
                 return false;
@@ -141,7 +142,6 @@ namespace ScapeNetLib
                 }
 
                 registers.RemoveAt(idToRemove);
-
                 SendPacketToAll(instantiate, playerId);
                 return false;
             });
@@ -206,8 +206,6 @@ namespace ScapeNetLib
                     case NetIncomingMessageType.DebugMessage:
                     case NetIncomingMessageType.WarningMessage:
                         break;
-
-                   
                     case NetIncomingMessageType.ErrorMessage:
                         throw new Exception("Error: " + msg.ReadString());
 
@@ -217,11 +215,7 @@ namespace ScapeNetLib
                         if (status == NetConnectionStatus.Disconnected)
                         {
                             NetConnection lostConnection = msg.SenderConnection;
-                            //PlayerLeft(lostConnection);
-                        }
-                        if(status == NetConnectionStatus.Connected)
-                        {
-
+                            PlayerLeft(lostConnection);
                         }
                         break;
                     case NetIncomingMessageType.ConnectionApproval:
@@ -236,7 +230,6 @@ namespace ScapeNetLib
                         int player_id = msg.ReadInt32();
                         NetOutgoingMessage outMsg = server.CreateMessage();
 
-                        //Console.WriteLine("Message Received In Server: " + packet_name + " packet");
 
                         if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name))
                         {
@@ -258,8 +251,6 @@ namespace ScapeNetLib
                             }
 
                                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-
-
                                 outMsg = PacketHelper.AddDefaultInformationToPacketWithId(outMsg, packet_name, player_id);
                                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
                         
@@ -269,11 +260,6 @@ namespace ScapeNetLib
                                 Console.WriteLine("Sent Packet To Everyone!");
                                 server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
                             }
-                           // else
-                          //  {
-                            ///    Console.WriteLine("Sent Packet To Sender!");
-                            //    server.SendMessage(outMsg, msg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
-                           // }
                         }
 
                         break;
@@ -285,5 +271,30 @@ namespace ScapeNetLib
             }
         }
 
+
+        //Remove all player information once the player leaves
+        void PlayerLeft(NetConnection lostConnection)
+        {
+            int playerLeftId = players[lostConnection];
+
+            List<PacketWithId<InstantiationPacket>> registersToRemove = new List<PacketWithId<InstantiationPacket>>();
+
+            foreach (PacketWithId<InstantiationPacket> packet in registers)
+            {
+                if(packet.playerId == playerLeftId)
+                {
+                    registersToRemove.Add(packet);
+                }
+            }
+
+           foreach(PacketWithId<InstantiationPacket> packet in registersToRemove)
+           {
+                registers.Remove(packet);
+           }
+
+            if (funcOnLeaveConnection != null)
+                funcOnLeaveConnection.Invoke(new object[] {null, playerLeftId, lostConnection});
+
+        }
     }
 }
