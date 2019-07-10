@@ -11,12 +11,13 @@ using Lidgren.Network;
 /// </summary>
 namespace ScapeNetLib
 {
-    public class Networker_Server : INetworker
+    public class Networker_Server 
     {
-        NetServer server;
-        NetPeerConfiguration config;
+        protected NetServer server;
+        protected NetPeerConfiguration config;
+        protected string connection_approval_string;
 
-        private string connection_approval_string;
+        
 
         public void Setup(string network_title, int port)
         {
@@ -27,9 +28,17 @@ namespace ScapeNetLib
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
-        public void Setup(string network_title)
+        public virtual void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
         {
-            Setup(network_title, 7777);
+            config.ConnectionTimeout = connection_timeout;
+            config.MaximumConnections = maximum_connections;
+
+            this.connection_approval_string = connection_approval_string;
+
+            server = new NetServer(config);
+            server.Start();
+
+            Console.WriteLine("[ScapeNet] Server is up.");
         }
 
         public void Close()
@@ -61,18 +70,9 @@ namespace ScapeNetLib
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
 
-        public void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
-        {
-            config.ConnectionTimeout = connection_timeout;
-            config.MaximumConnections = maximum_connections;
+     
 
-            this.connection_approval_string = connection_approval_string;
-
-            server = new NetServer(config);
-            server.Start();
-        }
-
-        public void Update()
+        public virtual void Update()
         {
             NetIncomingMessage msg;
             while ((msg = server.ReadMessage()) != null)
@@ -93,7 +93,7 @@ namespace ScapeNetLib
                         if (status == NetConnectionStatus.Disconnected)
                         {
                             NetConnection lostConnection = msg.SenderConnection;
-                            //PlayerLeft(lostConnection);
+                            PlayerLeft(lostConnection);
                         }
                         break;
                     case NetIncomingMessageType.ConnectionApproval:
@@ -106,39 +106,7 @@ namespace ScapeNetLib
                             msg.SenderConnection.Deny();
                         break;
                     case NetIncomingMessageType.Data:
-                        string packet_name = msg.ReadString();
-                        NetOutgoingMessage outMsg = server.CreateMessage();
-
-                        Console.WriteLine("Message Received In Server: " + packet_name + " packet");
- 
-                        if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name)) { 
-                            Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
-
-                            MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
-                            object packet = openMethod.Invoke(instance, new object[] { msg });
-                            bool shouldResend = false;
-
-                            //If it needs to be adjusted then adjust the packet
-                            if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name)) {
-                                shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
-                            }
-
-                            MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-
-                            outMsg = PacketHelper.AddDefaultInformationToPacket(outMsg, packet_name);
-                            outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
-
-
-                            if (shouldResend)
-                            {
-                                server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
-                            }
-                            //else
-                           // {
-                            //    server.SendMessage(outMsg, msg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
-                            //}
-                        }
-                       
+                        OnDataReceived(msg);
                         break;
                     default:
                         Console.WriteLine("Unhandled type: " + msg.MessageType);
@@ -148,6 +116,46 @@ namespace ScapeNetLib
             }
         }
 
+        //Remove all player information once the player leaves.
+        public virtual void PlayerLeft(NetConnection lostConnection){}
+
+        //When server receives data.
+        public virtual void OnDataReceived(NetIncomingMessage msg)
+        {
+            string packet_name = msg.ReadString();
+            NetOutgoingMessage outMsg = server.CreateMessage();
+
+            Console.WriteLine("Message Received In Server: " + packet_name + " packet");
+
+            if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name))
+            {
+                Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+
+                MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
+                object packet = openMethod.Invoke(instance, new object[] { msg });
+                bool shouldResend = false;
+
+                //If it needs to be adjusted then adjust the packet
+                if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name))
+                {
+                    shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
+                }
+
+                MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
+
+                outMsg = PacketHelper.AddDefaultInformationToPacket(outMsg, packet_name);
+                outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
+
+                if (shouldResend)
+                {
+                    server.SendToAll(outMsg, NetDeliveryMethod.ReliableOrdered);
+                }
+            }
+        }
+
 
     }
+
+
 }
+

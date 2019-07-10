@@ -9,7 +9,7 @@ using Lidgren.Network;
 
 namespace ScapeNetLib
 {
-    public class Networker_Client_Unity : INetworker
+    public class Networker_Client_Unity
     {
         NetClient client;
         NetPeerConfiguration config;
@@ -28,10 +28,6 @@ namespace ScapeNetLib
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
-        public void Setup(string network_title, int port)
-        {
-            Setup(network_title);
-        }
 
         public void Close()
         {
@@ -100,7 +96,6 @@ namespace ScapeNetLib
 
         public void Update()
         {
-
             NetIncomingMessage msg;
             while ((msg = client.ReadMessage()) != null)
             {
@@ -110,7 +105,6 @@ namespace ScapeNetLib
                     case NetIncomingMessageType.DebugMessage:
                     case NetIncomingMessageType.WarningMessage:
                     case NetIncomingMessageType.ErrorMessage:
-                        // Debug.Log(msg.ReadString());
                         break;
                     case NetIncomingMessageType.Data:
                         string packet_name = msg.ReadString();
@@ -123,8 +117,7 @@ namespace ScapeNetLib
                             object packet = openMethod.Invoke(instance, new object[] { msg });
                             bool shouldSendBack;
                  
-                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });
-                         
+                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });                         
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
@@ -132,7 +125,6 @@ namespace ScapeNetLib
                             OnConnected();
                         break;
                     default:
-                        //  Debug.Log("Unhandled type: " + msg.MessageType);
                         break;
                 }
                 client.Recycle(msg);
