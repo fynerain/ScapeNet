@@ -7,6 +7,7 @@ using ScapeNetLib;
 public class ScapeNet_SyncPositionRotation : ScapeNet_Behaviour
 {
 
+    public bool serverside = false;
     public bool updateRotation = false;
     
     private Vector3 previous_position = Vector3.zero;
@@ -15,8 +16,8 @@ public class ScapeNet_SyncPositionRotation : ScapeNet_Behaviour
     public override void Start(){
         base.Start();
 
-        if(!isServer)
-            StartCoroutine(SendPositionAndRotation());
+
+        StartCoroutine(SendPositionAndRotation());
     }
 
     public override void Update(){
@@ -27,20 +28,19 @@ public class ScapeNet_SyncPositionRotation : ScapeNet_Behaviour
     IEnumerator SendPositionAndRotation()
     {        
         yield return new WaitForEndOfFrame();
-
-        
+    
         SyncObjectsPosition();
 
         if(updateRotation)
             SyncObjectsRotation();
 
         StartCoroutine(SendPositionAndRotation());
-
     }
+
+    
 
     void SyncObjectsPosition(){
         Vector3 positionToSend;
-        //float cap = 10000000;
 
         //If object has a parent, then convert position before sending.
         if(transform.parent != null)
@@ -55,14 +55,14 @@ public class ScapeNet_SyncPositionRotation : ScapeNet_Behaviour
             return;
         
         PositionRotation pr = new PositionRotation("D_PositionRotation");
-        //pr.item_net_id = client.FindSpawnedNetObject(gameObject.GetComponent<ScapeNet_Network_ID>().object_id);
         pr.item_net_id = GetComponent<ScapeNet_Network_ID>().object_id;
         pr.isRotation = false;
         pr.x = positionToSend.x;
         pr.y = positionToSend.y;
         pr.z = positionToSend.z;
     
-        client.SendPacketToServer(pr);
+    
+        SendPacket(pr);
 
         previous_position = positionToSend;
     }
@@ -78,8 +78,17 @@ public class ScapeNet_SyncPositionRotation : ScapeNet_Behaviour
         pr.y = rotationToSend.y;
         pr.z = rotationToSend.z;
     
-        client.SendPacketToServer(pr);
+        SendPacket(pr);
 
         previous_rotation = rotationToSend;
+    }
+
+    void SendPacket(PositionRotation pr){
+        if(!serverside){
+                if(!isServer || editorServer)
+                    client.SendPacketToServer(pr);
+            }else{
+                server.SendPacketToAll(pr);
+            }
     }
 }

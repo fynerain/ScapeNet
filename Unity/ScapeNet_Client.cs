@@ -8,6 +8,8 @@ using ScapeNetLib;
 [RequireComponent(typeof(ScapeNet_Identifier))]
 public class ScapeNet_Client : MonoBehaviour
 {
+    public string ip = "localhost";
+    public int port = 7777;
 
     private GameObject localPlayer = null;
     private Networker_Client_Unity client;
@@ -17,13 +19,14 @@ public class ScapeNet_Client : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         client = new Networker_Client_Unity();
-        client.Setup("Forts", 7777);
+        client.Setup("Forts", port);
 
             client.OnReceive("D_Instantiate", received => {
                 PacketData<InstantiationPacket> data = new PacketData<InstantiationPacket>(received);
 
                 if(data.packet.item_net_id != -1){
-                    SpawnLocalCopyOfObject(data.playerId, data.packet.obj_name, data.packet.item_net_id, new Vector3(data.packet.x, data.packet.y, data.packet.z));
+                    SpawnLocalCopyOfObject(data.playerId, data.packet.obj_name, data.packet.item_net_id, new Vector3(data.packet.x, data.packet.y, data.packet.z),
+                    new Vector3(data.packet.rotX, data.packet.rotY, data.packet.rotZ));
                 }
                     
                 return false; 
@@ -66,14 +69,14 @@ public class ScapeNet_Client : MonoBehaviour
 
     void Start(){
         identifier = GetComponent<ScapeNet_Identifier>();
-        client.StartClient("localhost", 7777, "secret");    
+        client.StartClient(ip, port, "secret");    
     }
 
     void Update(){     
         client.Update();
 
         Debug.Log("Con: " + client.IsConnected());
-        Debug.Log(client.GetPlayerID());
+//        Debug.Log(client.GetPlayerID());
     }
 
     public bool IsClientConnected() {
@@ -85,10 +88,10 @@ public class ScapeNet_Client : MonoBehaviour
     }
 
 
-    void SpawnLocalCopyOfObject(int players_id, string object_name, int obj_net_id, Vector3 position)
+    void SpawnLocalCopyOfObject(int players_id, string object_name, int obj_net_id, Vector3 position, Vector3 rotation)
     {
             GameObject newObj = null;
-            newObj = Instantiate(FindNetObject(object_name), position, Quaternion.identity);
+            newObj = Instantiate(FindNetObject(object_name), position, Quaternion.Euler(rotation));
             newObj.GetComponent<ScapeNet_Network_ID>().players_id = players_id;
             newObj.GetComponent<ScapeNet_Network_ID>().object_id = obj_net_id;
 
@@ -113,7 +116,7 @@ public class ScapeNet_Client : MonoBehaviour
         identifier.currentAliveNetworkedObjects.Add(newObj); 
     }
 
-    public void SpawnRequest(string obj_name, Vector3 position){
+    public void SpawnRequest(string obj_name, Vector3 position, Vector3 rotation){
 
         InstantiationPacket packet = new InstantiationPacket("D_Instantiate");
         packet.obj_name = obj_name;
@@ -121,6 +124,10 @@ public class ScapeNet_Client : MonoBehaviour
         packet.x = position.x;
         packet.y = position.y;
         packet.z = position.z;
+
+        packet.rotX = rotation.x;
+        packet.rotY = rotation.y;
+        packet.rotZ = rotation.z;
 
         client.SendPacketToServer(packet);
     }

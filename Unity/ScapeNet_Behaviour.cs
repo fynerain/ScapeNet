@@ -13,6 +13,7 @@ public class ScapeNet_Behaviour : MonoBehaviour
 
     protected bool isConnected = false;
     protected bool isServer = false;
+    protected bool editorServer = false;
 
     private bool hasServerStarted = false;
 
@@ -21,6 +22,7 @@ public class ScapeNet_Behaviour : MonoBehaviour
     public virtual void Start(){
 
         isServer = GameObject.FindObjectOfType<ScapeNet_Identifier>().isServer;
+        editorServer = GameObject.FindObjectOfType<ScapeNet_Identifier>().forceServer;
 
         client = GameObject.FindObjectOfType<ScapeNet_Client>();
         server = GameObject.FindObjectOfType<ScapeNet_Server>();

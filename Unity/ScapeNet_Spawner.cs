@@ -11,7 +11,7 @@ public class ScapeNet_Spawner : ScapeNet_Behaviour
 
     public override void OnNetworkConnect(){
         if(!serverside && client.IsClientConnected())
-            client.SpawnRequest(itemToSpawn.name, gameObject.transform.position);      
+            client.SpawnRequest(itemToSpawn.name, gameObject.transform.position, gameObject.transform.rotation.eulerAngles);      
     }
 
     public override void OnServerStart(){
