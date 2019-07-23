@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 using System.Reflection;
 
 using Lidgren.Network;
+using ScapeNetLib.Packets;
 
 /// <summary>
 /// Used to handle all connections as a server. Has support for custom packet types, as well as doing special things when
 /// packets are received.
 /// </summary>
-namespace ScapeNetLib
+namespace ScapeNetLib.Networkers
 {
     public class Networker_Server_Unity : Networker_Server
     {
@@ -189,7 +190,7 @@ namespace ScapeNetLib
                 funcOnLeaveConnection.Invoke(new object[] { null, playerLeftId, lostConnection });
         }
 
-        public override void OnDataReceived(NetIncomingMessage msg)
+        protected override void OnDataReceived(NetIncomingMessage msg)
         {
             string packet_name = msg.ReadString();
             int player_id = msg.ReadInt32();

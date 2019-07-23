@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Lidgren.Network;
 
-namespace ScapeNetLib
+namespace ScapeNetLib.Packets
 {
     public class TestPacket : Packet<TestPacket>
     {

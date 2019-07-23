@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 using System.Reflection;
 
 using Lidgren.Network;
+using ScapeNetLib.Packets;
 
 /// <summary>
 /// Used to handle all connections as a server. Has support for custom packet types, as well as doing special things when
 /// packets are received.
 /// </summary>
-namespace ScapeNetLib
+namespace ScapeNetLib.Networkers
 {
     public class Networker_Server 
     {
@@ -51,6 +52,11 @@ namespace ScapeNetLib
             Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);
         }
 
+        public void OnReceive(string packet_name, Type packet_type, Func<object[], bool> function)
+        {
+            ScapeNet.AddPacketType(packet_name, packet_type);
+            Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);
+        }
 
         public void SendPacketToAll<T>(T packet) where T : Packet<T>
         {
@@ -120,7 +126,7 @@ namespace ScapeNetLib
         public virtual void PlayerLeft(NetConnection lostConnection){}
 
         //When server receives data.
-        public virtual void OnDataReceived(NetIncomingMessage msg)
+        protected virtual void OnDataReceived(NetIncomingMessage msg)
         {
             string packet_name = msg.ReadString();
             NetOutgoingMessage outMsg = server.CreateMessage();

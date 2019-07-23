@@ -4,46 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+
 using Lidgren.Network;
+using ScapeNetLib.Packets;
 
 
-namespace ScapeNetLib
+namespace ScapeNetLib.Networkers
 {
-    public class Networker_Client_Unity
+    public class Networker_Client_Unity : Networker_Client
     {
-        NetClient client;
-        NetPeerConfiguration config;
-
         int player_id = -1;
         bool isConnectedToServer = false;
 
-        public void Setup(string network_title)
+        public override void Setup(string network_title)
         {
             player_id = -1;
             isConnectedToServer = false;
 
-            config = new NetPeerConfiguration(network_title);
-
-            config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
-            config.EnableMessageType(NetIncomingMessageType.Data);
+            base.Setup(network_title);
         }
 
 
-        public void Close()
+        public override void StartClient(string ip, int port, string connection_approval_string)
         {
-            client.Shutdown("bye");
-        }
-
-        public void StartClient(string ip, int port, string connection_approval_string)
-        {
-            client = new NetClient(config);
-            client.Start();
 
             AddDefaultPacketReceives();
 
-            NetOutgoingMessage approval = client.CreateMessage();
-            approval.Write(connection_approval_string);
-            client.Connect(ip, port, approval);
+            base.StartClient(ip, port, connection_approval_string);
         }
 
         public bool IsConnected()
@@ -71,7 +58,7 @@ namespace ScapeNetLib
             });
         }
 
-        public void SendPacketToServer<T>(T packet) where T : Packet<T>
+        public override void SendPacketToServer<T>(T packet)
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
@@ -80,13 +67,7 @@ namespace ScapeNetLib
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-
-        public void OnReceive(string packet_name, Func<object[], bool> function)
-        {
-            Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_name, function);
-        }
-
-        public void OnConnected()
+        public override void OnConnected()
         {
             ConnectionPacket conPacket = new ConnectionPacket("D_Connection");
             conPacket.player_id = -1;
@@ -94,40 +75,19 @@ namespace ScapeNetLib
             SendPacketToServer(conPacket);
         }
 
-        public void Update()
+        protected override void OnDataReceived(NetIncomingMessage msg)
         {
-            NetIncomingMessage msg;
-            while ((msg = client.ReadMessage()) != null)
-            {
-                switch (msg.MessageType)
-                {
-                    case NetIncomingMessageType.VerboseDebugMessage:
-                    case NetIncomingMessageType.DebugMessage:
-                    case NetIncomingMessageType.WarningMessage:
-                    case NetIncomingMessageType.ErrorMessage:
-                        break;
-                    case NetIncomingMessageType.Data:
-                        string packet_name = msg.ReadString();
-                        int player_id = msg.ReadInt32();
+            string packet_name = msg.ReadString();
+            int player_id = msg.ReadInt32();
 
-                        if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_name))
-                        {
-                            System.Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
-                            MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
-                            object packet = openMethod.Invoke(instance, new object[] { msg });
-                            bool shouldSendBack;
-                 
-                            shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });                         
-                        }
-                        break;
-                    case NetIncomingMessageType.StatusChanged:
-                        if ((NetConnectionStatus)msg.ReadByte() == NetConnectionStatus.Connected)
-                            OnConnected();
-                        break;
-                    default:
-                        break;
-                }
-                client.Recycle(msg);
+            if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_name))
+            {
+                System.Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+                MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
+                object packet = openMethod.Invoke(instance, new object[] { msg });
+                bool shouldSendBack;
+
+                shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });
             }
         }
 

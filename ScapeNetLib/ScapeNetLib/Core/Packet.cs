@@ -11,7 +11,7 @@ using Lidgren.Network;
 /// </summary>
 namespace ScapeNetLib
 {
-    public class Packet<T>
+    public abstract class Packet<T> 
     {
         protected string packet_name;
 
@@ -20,17 +20,18 @@ namespace ScapeNetLib
             this.packet_name = packet_name;
         }
 
-        //Constructor only avaliable to inherited members, used for the PacketHL
-        protected Packet(){}
-        public void Set_PacketName(string packet_name) { this.packet_name = packet_name; }
+        public void Set_PacketName(string packet_name)
+        {
+            this.packet_name = packet_name;
+        }
 
         public string Get_PacketName()
         {
             return packet_name;
         }
 
-        public virtual T OpenPacketFromMessage(NetIncomingMessage msg) { return default(T); }
-        public virtual NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg,  T packet) { return null; }
+        public abstract T OpenPacketFromMessage(NetIncomingMessage msg);
+        public abstract NetOutgoingMessage PackPacketIntoMessage(NetOutgoingMessage msg, T packet);
 
         public NetOutgoingMessage RepackPacket(NetIncomingMessage msg,  NetOutgoingMessage msgO)
         {

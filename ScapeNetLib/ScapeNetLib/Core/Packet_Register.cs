@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ScapeNetLib.Packets;
 
 /// <summary>
 /// Stores a list of all types of packets that the client and server can use.

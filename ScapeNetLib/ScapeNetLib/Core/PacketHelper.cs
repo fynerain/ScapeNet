@@ -8,7 +8,7 @@ using Lidgren.Network;
 
 namespace ScapeNetLib
 {
-    static class PacketHelper
+    internal static class PacketHelper
     {     
         public static NetOutgoingMessage AddDefaultInformationToPacket(NetOutgoingMessage msg, string packet_name)
         {
