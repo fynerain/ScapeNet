@@ -46,20 +46,20 @@ namespace ScapeNetLib.Networkers
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
-            msg = packet.PackPacketIntoMessage( msg,  packet);
+            msg = PacketHelper.AddDefaultInformationToPacket(msg, typeof(T).Name, packet.Get_PacketIdentifier());
+            msg = packet.PackPacketIntoMessage(msg,  packet);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
-        public void OnReceive(string packet_name, Func<object[], bool> function)
+        public void OnReceive(string packet_identifier, Func<object[], bool> function)
         {
-            Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_name, function);
+            Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_identifier, function);
         }
 
-        public void OnReceive(string packet_name, Type packet_type, Func<object[], bool> function)
+        public void OnReceive(string packet_identifier, Type packet_type, Func<object[], bool> function)
         {
-            ScapeNet.AddPacketType(packet_name, packet_type);
-            Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_name, function);
+            ScapeNet.AddPacketType(packet_type);
+            Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_identifier, function);
         }
 
         public virtual void OnConnected() { }
@@ -93,15 +93,16 @@ namespace ScapeNetLib.Networkers
         protected virtual void OnDataReceived(NetIncomingMessage msg)
         {
             string packet_name = msg.ReadString();
+            string packet_identifier = msg.ReadString();
 
-            if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_name))
+            if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_identifier))
             {
-                Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+                Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_identifier);
                 MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                 object packet = openMethod.Invoke(instance, new object[] { msg });
                 bool shouldSendBack;
 
-                shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
+                shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, 0 });
             }
         }
     }

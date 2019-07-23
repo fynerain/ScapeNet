@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using ScapeNetLib;
+using ScapeNetLib.Networkers;
+using ScapeNetLib.Packets;
 
 namespace ClientTest
 {
@@ -13,14 +15,14 @@ namespace ClientTest
         static void Main(string[] args)
         {
             Networker_Client_Unity cli = new Networker_Client_Unity();
-            cli.Setup("MS", 7777);
+            cli.Setup("MS");
             cli.StartClient("localhost", 7777, "secret");
 
-            ScapeNet.AddPacketType("Test", typeof(Test));
+            //ScapeNet.AddPacketType(typeof(TestPacket));
 
-            cli.OnReceive("Test", packetObj => {
-                PacketData<Test> test = new PacketData<Test>(packetObj);
-                Console.WriteLine("Received: " + test.packet.testStr);
+            cli.OnReceive("D_Test", packetObj => {
+                PacketData<TestPacket> test = new PacketData<TestPacket>(packetObj);
+                Console.WriteLine("Received: ");
 
                 return true;
             });

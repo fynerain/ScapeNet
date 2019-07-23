@@ -13,21 +13,23 @@ namespace ScapeNetLib
 {
     public abstract class Packet<T> 
     {
-        protected string packet_name;
+        protected string packet_identifier;
 
-        public Packet(string packet_name)
+        public Packet(){}
+
+        public Packet(string packet_identifier)
         {
-            this.packet_name = packet_name;
+            this.packet_identifier = packet_identifier;
         }
 
-        public void Set_PacketName(string packet_name)
+        public void Set_PacketIdentifer(string packet_identifier)
         {
-            this.packet_name = packet_name;
+            this.packet_identifier = packet_identifier;
         }
 
-        public string Get_PacketName()
+        public string Get_PacketIdentifier()
         {
-            return packet_name;
+            return packet_identifier;
         }
 
         public abstract T OpenPacketFromMessage(NetIncomingMessage msg);

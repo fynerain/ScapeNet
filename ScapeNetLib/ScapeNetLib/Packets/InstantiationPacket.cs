@@ -21,11 +21,11 @@ namespace ScapeNetLib.Packets
         public float rotY;
         public float rotZ;
 
-        public InstantiationPacket(string packet_name) : base(packet_name){}
+        public InstantiationPacket(string packet_identifier) : base(packet_identifier) {}
 
         public override InstantiationPacket OpenPacketFromMessage(NetIncomingMessage msg)
         {
-            InstantiationPacket packet = new InstantiationPacket(packet_name);
+            InstantiationPacket packet = new InstantiationPacket(packet_identifier);
 
             packet.obj_name = msg.ReadString();
             packet.item_net_id = msg.ReadInt32();

@@ -47,22 +47,22 @@ namespace ScapeNetLib.Networkers
             server.Shutdown("bye");
         }
 
-        public void OnReceive(string packet_name, Func<object[], bool> function)
+        public void OnReceive(string packet_identifier, Func<object[], bool> function)
         {
-            Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);
+            Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_identifier, function);
         }
 
-        public void OnReceive(string packet_name, Type packet_type, Func<object[], bool> function)
+        public void OnReceive(string packet_identifier, Type packet_type, Func<object[], bool> function)
         {
-            ScapeNet.AddPacketType(packet_name, packet_type);
-            Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_name, function);
+            ScapeNet.AddPacketType(packet_type);
+            Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_identifier, function);
         }
 
         public void SendPacketToAll<T>(T packet) where T : Packet<T>
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = PacketHelper.AddDefaultInformationToPacket(msg, typeof(T).Name, packet.Get_PacketIdentifier());
             msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -71,7 +71,7 @@ namespace ScapeNetLib.Networkers
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacket(msg, packet.Get_PacketName());
+            msg = PacketHelper.AddDefaultInformationToPacket(msg, typeof(T).Name, packet.Get_PacketIdentifier());
             msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
@@ -129,27 +129,28 @@ namespace ScapeNetLib.Networkers
         protected virtual void OnDataReceived(NetIncomingMessage msg)
         {
             string packet_name = msg.ReadString();
+            string packet_identifier = msg.ReadString();
             NetOutgoingMessage outMsg = server.CreateMessage();
 
             Console.WriteLine("Message Received In Server: " + packet_name + " packet");
 
             if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name))
             {
-                Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+                Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_identifier);
 
                 MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                 object packet = openMethod.Invoke(instance, new object[] { msg });
                 bool shouldResend = false;
 
                 //If it needs to be adjusted then adjust the packet
-                if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name))
+                if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_identifier))
                 {
-                    shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, 0 });
+                    shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, 0 });
                 }
 
                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
 
-                outMsg = PacketHelper.AddDefaultInformationToPacket(outMsg, packet_name);
+                outMsg = PacketHelper.AddDefaultInformationToPacket(outMsg, packet_name, packet_identifier);
                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
                 if (shouldResend)

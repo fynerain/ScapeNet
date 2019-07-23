@@ -125,7 +125,9 @@ namespace ScapeNetLib.Networkers
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), playerID);
+            //Console.WriteLine("Sent packet of type " + typeof(T).Name + " with identifier of " + packet.Get_PacketIdentifier());
+
+            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, typeof(T).Name, packet.Get_PacketIdentifier(), playerID);
             msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -134,7 +136,7 @@ namespace ScapeNetLib.Networkers
         {
             NetOutgoingMessage msg = server.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), playerID);
+            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, typeof(T).Name, packet.Get_PacketIdentifier(), playerID);
             msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
@@ -193,13 +195,16 @@ namespace ScapeNetLib.Networkers
         protected override void OnDataReceived(NetIncomingMessage msg)
         {
             string packet_name = msg.ReadString();
+            string packet_identifier = msg.ReadString();
             int player_id = msg.ReadInt32();
             NetOutgoingMessage outMsg = server.CreateMessage();
+
+         
 
 
             if (Packet_Register.Instance.packetTypes.ContainsKey(packet_name))
             {
-                Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+                Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_identifier);
                 object packet = null;
                 bool shouldResend = false;
 
@@ -208,16 +213,16 @@ namespace ScapeNetLib.Networkers
                 packet = openMethod.Invoke(instance, new object[] { msg });
 
                 //If it needs to be adjusted then adjust the packet
-                if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_name))
+                if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_identifier))
                 {
-                    if (Packet_Register.Instance.serverPacketReceivedRegister[packet_name] == null)
+                    if (Packet_Register.Instance.serverPacketReceivedRegister[packet_identifier] == null)
                         shouldResend = true;
                     else
-                        shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });
+                        shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, player_id, msg.SenderConnection });
                 }
 
                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
-                outMsg = PacketHelper.AddDefaultInformationToPacketWithId(outMsg, packet_name, player_id);
+                outMsg = PacketHelper.AddDefaultInformationToPacketWithId(outMsg, packet_name, packet_identifier, player_id);
                 outMsg = packMethod.Invoke(instance, new object[] { outMsg, packet }) as NetOutgoingMessage;
 
 

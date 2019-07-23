@@ -12,11 +12,11 @@ namespace ScapeNetLib.Packets
     {
         public int player_id;
 
-        public OnConnectPacket(string packet_name) : base(packet_name){}
+        public OnConnectPacket(string packet_identifier) : base(packet_identifier) {}
 
         public override OnConnectPacket OpenPacketFromMessage(NetIncomingMessage msg)
         {
-            OnConnectPacket packet = new OnConnectPacket(packet_name);
+            OnConnectPacket packet = new OnConnectPacket(packet_identifier);
             packet.player_id = msg.ReadInt32();
 
             return packet;

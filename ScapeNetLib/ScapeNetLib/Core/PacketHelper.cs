@@ -10,15 +10,16 @@ namespace ScapeNetLib
 {
     internal static class PacketHelper
     {     
-        public static NetOutgoingMessage AddDefaultInformationToPacket(NetOutgoingMessage msg, string packet_name)
+        public static NetOutgoingMessage AddDefaultInformationToPacket(NetOutgoingMessage msg, string packet_name, string packet_identifier)
         {
             msg.Write(packet_name);
+            msg.Write(packet_identifier);
             return msg;
         }
 
-        public static NetOutgoingMessage AddDefaultInformationToPacketWithId(NetOutgoingMessage msg, string packet_name, int player_id)
+        public static NetOutgoingMessage AddDefaultInformationToPacketWithId(NetOutgoingMessage msg, string packet_name, string packet_identifier, int player_id)
         {
-            msg.Write(packet_name);
+            msg = AddDefaultInformationToPacket(msg, packet_name, packet_identifier);
             msg.Write(player_id);
             return msg;
         }

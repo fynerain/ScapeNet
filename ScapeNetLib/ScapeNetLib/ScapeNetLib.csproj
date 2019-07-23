@@ -62,8 +62,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScapeNet.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Packets\MicroData\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

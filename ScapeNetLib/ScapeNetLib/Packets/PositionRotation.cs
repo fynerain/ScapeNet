@@ -16,11 +16,11 @@ namespace ScapeNetLib.Packets
         public float y;
         public float z;
 
-        public PositionRotation(string packet_name) : base(packet_name){}
+        public PositionRotation(string packet_identifier) : base(packet_identifier) {}
 
         public override PositionRotation OpenPacketFromMessage(NetIncomingMessage msg)
         {
-            PositionRotation packet = new PositionRotation(packet_name);
+            PositionRotation packet = new PositionRotation(packet_identifier);
 
             packet.item_net_id = msg.ReadInt32();
             packet.isRotation = msg.ReadBoolean();

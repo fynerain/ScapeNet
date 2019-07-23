@@ -12,11 +12,11 @@ namespace ScapeNetLib.Packets
     {
         public int item_net_id;
 
-        public DeletePacket(string packet_name) : base(packet_name){}
+        public DeletePacket(string packet_identifier) : base(packet_identifier) {}
 
         public override DeletePacket OpenPacketFromMessage(NetIncomingMessage msg)
         {
-            DeletePacket packet = new DeletePacket(packet_name);
+            DeletePacket packet = new DeletePacket(packet_identifier);
             packet.item_net_id = msg.ReadInt32();
 
             return packet;

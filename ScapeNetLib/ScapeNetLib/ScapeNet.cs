@@ -8,9 +8,9 @@ namespace ScapeNetLib
 {
     public static class ScapeNet
     {
-        public static void AddPacketType(string packet_name, Type packet_type)
+        public static void AddPacketType(Type packet_type)
         {
-            Packet_Register.Instance.packetTypes.Add(packet_name, packet_type);
+            Packet_Register.Instance.AddToPacketRegister(packet_type);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace ScapeNetLib.Packets
 
         public override TestPacket OpenPacketFromMessage(NetIncomingMessage msg)
         {
-            TestPacket packet = new TestPacket(packet_name)
+            TestPacket packet = new TestPacket(packet_identifier)
             {
                 testString = msg.ReadString()
             };

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using ScapeNetLib;
+using ScapeNetLib.Networkers;
+using ScapeNetLib.Packets;
 
 namespace ServerTest
 {
@@ -16,20 +18,10 @@ namespace ServerTest
             srv.Setup("MS", 7777);
             srv.HostServer(100, 10, "secret");
 
-            ScapeNet.AddPacketType("Test", typeof(Test));
 
-            Test t = new Test();
-            t.testStr = "Cool Test!";
-
-           
-
-            //srv.OnReceive("D_Register", received => {
-            //    RegisterPacket rp = (RegisterPacket)received[0];
-            //   int players_id = (int)received[1];
-            //  Console.WriteLine(rp.obj_name);
-
-            //   return true; //We don't want this packet to be send to the server.
-            //    });
+            TestPacket t = new TestPacket("D_Test");
+       
+      
 
             while (true)
             {

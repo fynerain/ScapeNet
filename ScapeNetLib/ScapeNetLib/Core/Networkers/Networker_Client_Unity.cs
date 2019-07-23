@@ -62,7 +62,7 @@ namespace ScapeNetLib.Networkers
         {
             NetOutgoingMessage msg = client.CreateMessage();
 
-            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, packet.Get_PacketName(), player_id);
+            msg = PacketHelper.AddDefaultInformationToPacketWithId(msg, typeof(T).Name, packet.Get_PacketIdentifier(), player_id);
             msg = packet.PackPacketIntoMessage(msg,  packet);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
@@ -78,16 +78,22 @@ namespace ScapeNetLib.Networkers
         protected override void OnDataReceived(NetIncomingMessage msg)
         {
             string packet_name = msg.ReadString();
+            string packet_identifier = msg.ReadString();
             int player_id = msg.ReadInt32();
 
-            if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_name))
+           // Console.WriteLine("Packet name of " + packet_name + " packet identifier of " + packet_identifier);
+
+
+            if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_identifier))
             {
-                System.Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_name);
+                Console.WriteLine("Is in register");
+
+                System.Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_identifier);
                 MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                 object packet = openMethod.Invoke(instance, new object[] { msg });
                 bool shouldSendBack;
 
-                shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_name].Invoke(new object[] { packet, player_id, msg.SenderConnection });
+                shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, player_id, msg.SenderConnection });
             }
         }
 
