@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ScapeNetLib.Packets;
+using ScapeNetLib.Packets.MicroData;
 
 /// <summary>
 /// Stores a list of all types of packets that the client and server can use.
@@ -38,6 +39,9 @@ namespace ScapeNetLib
             AddToPacketRegister(typeof(DeletePacket));
             AddToPacketRegister(typeof(PositionRotation));
             AddToPacketRegister(typeof(OnConnectPacket));
+            AddToPacketRegister(typeof(MDFPacket));
+            AddToPacketRegister(typeof(MDIPacket));
+            AddToPacketRegister(typeof(MDSPacket));
         }
 
         public void AddToPacketRegister(Type type)

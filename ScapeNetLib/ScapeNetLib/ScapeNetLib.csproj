@@ -52,6 +52,9 @@
     <Compile Include="Core\PacketHelper.cs" />
     <Compile Include="Core\PacketWithId.cs" />
     <Compile Include="Core\PacketData.cs" />
+    <Compile Include="Packets\MicroData\MDSPacket.cs" />
+    <Compile Include="Packets\MicroData\MDIPacket.cs" />
+    <Compile Include="Packets\MicroData\MDFPacket.cs" />
     <Compile Include="Packets\OnConnectPacket.cs" />
     <Compile Include="Packets\ConnectionPacket.cs" />
     <Compile Include="Packets\DeletePacket.cs" />
