@@ -24,11 +24,11 @@ namespace ScapeNetLib.Networkers
 
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             config.EnableMessageType(NetIncomingMessageType.Data);
+            client = new NetClient(config);
         }
 
         public virtual void StartClient(string ip, int port, string connection_approval_string)
         {
-            client = new NetClient(config);
             client.Start();
 
             NetOutgoingMessage approval = client.CreateMessage();

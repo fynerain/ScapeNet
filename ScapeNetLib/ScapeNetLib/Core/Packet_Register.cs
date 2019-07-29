@@ -35,10 +35,11 @@ namespace ScapeNetLib
 
             AddToPacketRegister(typeof(TestPacket));
             AddToPacketRegister(typeof(ConnectionPacket));
+            AddToPacketRegister(typeof(OnConnectPacket));
             AddToPacketRegister(typeof(InstantiationPacket));
             AddToPacketRegister(typeof(DeletePacket));
             AddToPacketRegister(typeof(PositionRotation));
-            AddToPacketRegister(typeof(OnConnectPacket));
+            
             AddToPacketRegister(typeof(MDFPacket));
             AddToPacketRegister(typeof(MDIPacket));
             AddToPacketRegister(typeof(MDSPacket));
