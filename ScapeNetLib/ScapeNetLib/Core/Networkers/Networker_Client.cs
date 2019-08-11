@@ -21,6 +21,7 @@ namespace ScapeNetLib.Networkers
         public virtual void Setup(string network_title)
         {
             config = new NetPeerConfiguration(network_title);
+            config.AutoExpandMTU = true;
 
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             config.EnableMessageType(NetIncomingMessageType.Data);

@@ -19,7 +19,9 @@ namespace ScapeNetLib.Networkers
         int currentItemID = -1;
 
         //List of all players, with their id, and respective connection.
-        Dictionary<NetConnection, int> players = new Dictionary<NetConnection, int>();
+        Dictionary<NetConnection, int> playersConnection = new Dictionary<NetConnection, int>();
+
+        Dictionary<int, NetConnection> players = new Dictionary<int, NetConnection>();
 
         //List of all instantiation packets sent. This will be sent to new joins to 'sync' them.
         List<PacketWithId<InstantiationPacket>> registers = new List<PacketWithId<InstantiationPacket>>();
@@ -45,7 +47,8 @@ namespace ScapeNetLib.Networkers
 
                 //Register Player
                 int newID = GetNextPlayerID();
-                players.Add(senderConnection, newID);
+                playersConnection.Add(senderConnection, newID);
+                players.Add(newID, senderConnection);
                 connectionPacket.player_id = newID;
 
                 SendPacketToExistingConnection(connectionPacket, senderConnection, -1);
@@ -171,7 +174,8 @@ namespace ScapeNetLib.Networkers
 
         public override void PlayerLeft(NetConnection lostConnection)
         {
-            int playerLeftId = players[lostConnection];
+            int playerLeftId = playersConnection[lostConnection];
+            players.Remove(playerLeftId);
 
             List<PacketWithId<InstantiationPacket>> registersToRemove = new List<PacketWithId<InstantiationPacket>>();
 
@@ -233,6 +237,16 @@ namespace ScapeNetLib.Networkers
                 }
             }
 
+        }
+
+        public NetConnection GetPlayerConnection(int playerId)
+        {
+            return players[playerId];
+        }
+
+        public int GetPlayerId(NetConnection playerConnection)
+        {
+            return playersConnection[playerConnection];
         }
     }
 }

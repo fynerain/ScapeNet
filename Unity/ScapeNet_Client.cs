@@ -1,27 +1,35 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
 using ScapeNetLib;
+using ScapeNetLib.Packets;
+using ScapeNetLib.Networkers;
 
 [RequireComponent(typeof(ScapeNet_Identifier))]
 public class ScapeNet_Client : MonoBehaviour
 {
-    public string ip = "localhost";
-    public int port = 7777;
+    //public string ip = "localhost";
+    //public int port = 7777;
 
     private GameObject localPlayer = null;
-    private Networker_Client_Unity client;
+
+    [HideInInspector]
+    public Networker_Client_Unity clientNetworker;
     private ScapeNet_Identifier identifier;
+
+
+    private bool clientStarted = false;
 
     void Awake(){
         DontDestroyOnLoad(gameObject);
 
-        client = new Networker_Client_Unity();
-        client.Setup("Forts", port);
+        clientNetworker = new Networker_Client_Unity();
+        clientNetworker.Setup("Forts");
 
-            client.OnReceive("D_Instantiate", received => {
+            clientNetworker.OnReceive("D_Instantiate", received => {
                 PacketData<InstantiationPacket> data = new PacketData<InstantiationPacket>(received);
 
                 if(data.packet.item_net_id != -1){
@@ -33,10 +41,10 @@ public class ScapeNet_Client : MonoBehaviour
             });
 
 
-            client.OnReceive("D_PositionRotation", received => {
+            clientNetworker.OnReceive("D_PositionRotation", received => {
                 PacketData<PositionRotation> data = new PacketData<PositionRotation>(received);
 
-                if(client.GetPlayerID() != data.playerId){
+                if(clientNetworker.GetPlayerID() != data.playerId){
                     GameObject go = FindSpawnedNetObject(data.packet.item_net_id);
 
                     if(go != null){
@@ -50,7 +58,7 @@ public class ScapeNet_Client : MonoBehaviour
                 return false; 
             });
 
-            client.OnReceive("D_Delete", received => {
+            clientNetworker.OnReceive("D_Delete", received => {
                 PacketData<DeletePacket> data = new PacketData<DeletePacket>(received);
                 GameObject toDelete = null;
 
@@ -65,26 +73,31 @@ public class ScapeNet_Client : MonoBehaviour
             
                 return false; 
             });
+      identifier = GetComponent<ScapeNet_Identifier>();
     }
 
-    void Start(){
-        identifier = GetComponent<ScapeNet_Identifier>();
-        client.StartClient(ip, port, "secret");    
+    public void StartClient(string ip, int port){
+
+        try{
+        clientNetworker.StartClient(ip, port, "secret");  
+        clientStarted = true;
+        }catch(Exception e){
+            clientStarted = false;
+        }
     }
 
-    void Update(){     
-        client.Update();
+    void Update(){    
 
-        Debug.Log("Con: " + client.IsConnected());
-//        Debug.Log(client.GetPlayerID());
+        if(clientStarted) 
+              clientNetworker.Update();
     }
 
     public bool IsClientConnected() {
-        return client.IsConnected();
+        return clientNetworker.IsConnected();
     }
 
     public void SendPacketToServer<T>(T packet) where T : Packet<T>{
-        client.SendPacketToServer(packet);
+        clientNetworker.SendPacketToServer(packet);
     }
 
 
@@ -103,7 +116,7 @@ public class ScapeNet_Client : MonoBehaviour
         if (object_name == "Player")
         {     
             //Another player - disable their controls
-            if (client.GetPlayerID() != players_id)
+            if (clientNetworker.GetPlayerID() != players_id)
             {
                 newObj.GetComponent<ScapeNet_Network_Disable>().Disable();
             }
@@ -129,7 +142,7 @@ public class ScapeNet_Client : MonoBehaviour
         packet.rotY = rotation.y;
         packet.rotZ = rotation.z;
 
-        client.SendPacketToServer(packet);
+        clientNetworker.SendPacketToServer(packet);
     }
 
     public GameObject FindNetObject(string object_name){
@@ -152,7 +165,7 @@ public class ScapeNet_Client : MonoBehaviour
         DeletePacket packet = new DeletePacket("D_Delete");
         packet.item_net_id = obj_net_id;
         
-        client.SendPacketToServer(packet);
+        clientNetworker.SendPacketToServer(packet);
     }
 
     public GameObject GetLocalPlayer(){
@@ -161,6 +174,6 @@ public class ScapeNet_Client : MonoBehaviour
 
     public void OnApplicationQuit()
     {
-        client.Close();
+        clientNetworker.Close();
     }
 }

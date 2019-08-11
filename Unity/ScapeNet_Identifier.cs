@@ -12,18 +12,8 @@ public class ScapeNet_Identifier : MonoBehaviour
     public bool isServer;
 
     [HideInInspector]
-    public bool forceServer; 
+    public bool isClient;
 
-    void Awake(){
-        if(!forceServer){
-            #if UNITY_SERVER
-                isServer = true;
-            #else
-                isServer = false;
-            #endif
-        }else
-        {
-            isServer = true;
-        }
-    }
+    [HideInInspector]
+    public bool buildAsServer; 
 }

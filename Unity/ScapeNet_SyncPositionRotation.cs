@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using ScapeNetLib;
+using ScapeNetLib.Packets;
 
 public class ScapeNet_SyncPositionRotation : ScapeNet_Behaviour
 {

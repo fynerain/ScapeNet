@@ -24,7 +24,6 @@ namespace ScapeNetLib.Networkers
             base.Setup(network_title);
         }
 
-
         public override void StartClient(string ip, int port, string connection_approval_string)
         {
             AddDefaultPacketReceives();

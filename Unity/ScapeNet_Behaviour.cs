@@ -14,22 +14,26 @@ public class ScapeNet_Behaviour : MonoBehaviour
     protected bool isConnected = false;
     protected bool isServer = false;
     protected bool editorServer = false;
+    protected bool isClient = false;
 
     private bool hasServerStarted = false;
 
-
-    // Start is called before the first frame update
     public virtual void Start(){
 
         isServer = GameObject.FindObjectOfType<ScapeNet_Identifier>().isServer;
-        editorServer = GameObject.FindObjectOfType<ScapeNet_Identifier>().forceServer;
+        //editorServer = GameObject.FindObjectOfType<ScapeNet_Identifier>().forceServer;
 
         client = GameObject.FindObjectOfType<ScapeNet_Client>();
         server = GameObject.FindObjectOfType<ScapeNet_Server>();
     }
 
-    // Update is called once per frame
     public virtual void Update(){
+
+        if(client == null)
+            client = GameObject.FindObjectOfType<ScapeNet_Client>();
+
+        if(server == null)
+           server = GameObject.FindObjectOfType<ScapeNet_Server>();
 
           if(client.enabled == true){
             if(!isConnected)

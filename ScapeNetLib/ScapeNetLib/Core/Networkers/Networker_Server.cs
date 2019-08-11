@@ -16,13 +16,12 @@ namespace ScapeNetLib.Networkers
     {
         protected NetServer server;
         protected NetPeerConfiguration config;
-        protected string connection_approval_string;
-
-        
+        protected string connection_approval_string;    
 
         public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
+            config.AutoExpandMTU = true;
             config.Port = port;
            
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
@@ -75,8 +74,6 @@ namespace ScapeNetLib.Networkers
             msg = packet.PackPacketIntoMessage(msg, packet);
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
-
-     
 
         public virtual void Update()
         {
@@ -161,6 +158,10 @@ namespace ScapeNetLib.Networkers
         }
 
 
+        public int GetConnections()
+        {
+            return server.Connections.Count;
+        }
     }
 
 
