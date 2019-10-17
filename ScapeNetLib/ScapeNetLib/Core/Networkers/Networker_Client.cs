@@ -103,7 +103,7 @@ namespace ScapeNetLib.Networkers
                 object packet = openMethod.Invoke(instance, new object[] { msg });
                 bool shouldSendBack;
 
-                shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, 0 });
+                shouldSendBack = Packet_Register.Instance.clientPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, msg.SenderConnection });
             }
         }
     }

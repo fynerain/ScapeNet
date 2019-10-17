@@ -20,9 +20,18 @@ namespace ScapeNetLib
 
         public PacketData(object[] data)
         {
-            packet = (T)data[0];
-            playerId = (int)data[1];
-            senderConnection = (NetConnection)data[2];
+            // _Unity packet , which contains a player id
+            if (data.Length > 2)
+            {
+                packet = (T)data[0];
+                playerId = (int)data[1];
+                senderConnection = (NetConnection)data[2];
+            }
+            else
+            {
+                packet = (T)data[0];
+                senderConnection = (NetConnection)data[1];
+            }
         }
     }
 }

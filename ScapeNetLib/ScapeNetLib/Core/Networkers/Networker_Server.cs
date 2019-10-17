@@ -142,7 +142,7 @@ namespace ScapeNetLib.Networkers
                 //If it needs to be adjusted then adjust the packet
                 if (Packet_Register.Instance.serverPacketReceivedRegister.ContainsKey(packet_identifier))
                 {
-                    shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, 0 });
+                    shouldResend = Packet_Register.Instance.serverPacketReceivedRegister[packet_identifier].Invoke(new object[] { packet, msg.SenderConnection });
                 }
 
                 MethodInfo packMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("PackPacketIntoMessage");
