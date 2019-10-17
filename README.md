@@ -16,6 +16,6 @@ I wanted a no non-sense, easy to use lower-level library for some small games i 
 
 There are a number of limitations, as well as complications in taking the approach i already have.
 
-- Packet class definitions must be the same in both the client and server.
+- Packet class definitions must be redefined in both the client and server.
 - Packets classes are defined in fairly similar and strict ways no matter the desired implementation.
 - Some Lidgren knowledge is still required for certain things. It's especially needed for custom server and client implementations.
