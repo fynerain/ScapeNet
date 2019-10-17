@@ -24,7 +24,8 @@ There are a number of limitations, as well as complications in taking the approa
 
 To run the Unity example do the following:
  - Download and open the example Unity project given in the source.
- - Open the SampleScene
- - Click on ScapeNet on the top bar and set it to Client + Server (this gives you both the client and server in a build)
+ - Open the SampleScene.
+ - Click on ScapeNet on the top bar and set it to Client + Server (this gives you both the client and server in a build).
+ - Run the game.
  
 To open just a Client/Server build press the Client or Server button. If its a server build, be sure to press the server build checkmark in the build settings.
