@@ -19,6 +19,7 @@ There are a number of limitations, as well as complications in taking the approa
 - Packet class definitions must be redefined in both the client and server if the codebases are seperate.
 - Packets classes are defined in fairly similar and strict ways no matter the desired implementation.
 - Some Lidgren knowledge is still required for certain things. It's especially needed for custom server and client implementations.
+- No position sync on join at the moment (Unity) (Coming v1.2.0).
 
 # Unity Example
 
