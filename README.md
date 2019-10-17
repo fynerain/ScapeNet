@@ -20,7 +20,7 @@ There are a number of limitations, as well as complications in taking the approa
 - Packets classes are defined in fairly similar and strict ways no matter the desired implementation.
 - Some Lidgren knowledge is still required for certain things. It's especially needed for custom server and client implementations.
 
-# UnityExample
+# Unity Example
 
 To run the Unity example do the following:
  - Download and open the example Unity project given in the source.
