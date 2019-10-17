@@ -19,3 +19,12 @@ There are a number of limitations, as well as complications in taking the approa
 - Packet class definitions must be redefined in both the client and server if the codebases are seperate.
 - Packets classes are defined in fairly similar and strict ways no matter the desired implementation.
 - Some Lidgren knowledge is still required for certain things. It's especially needed for custom server and client implementations.
+
+# UnityExample
+
+To run the Unity example do the following:
+ - Download and open the example Unity project given in the source.
+ - Open the SampleScene
+ - Click on ScapeNet on the top bar and set it to Client + Server (this gives you both the client and server in a build)
+ 
+To open just a Client/Server build press the Client or Server button. If its a server build, be sure to press the server build checkmark in the build settings.
