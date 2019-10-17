@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Small packet class that also contains an ID. Used for the Unity variations of the networkers.
+/// </summary>
 namespace ScapeNetLib
 {
     internal class PacketWithId<T> where T : Packet<T>

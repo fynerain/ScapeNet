@@ -79,13 +79,9 @@ namespace ScapeNetLib.Networkers
             string packet_identifier = msg.ReadString();
             int player_id = msg.ReadInt32();
 
-           // Console.WriteLine("Packet name of " + packet_name + " packet identifier of " + packet_identifier);
-
 
             if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_identifier))
             {
-                Console.WriteLine("Is in register");
-
                 System.Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_identifier);
                 MethodInfo openMethod = Packet_Register.Instance.packetTypes[packet_name].GetMethod("OpenPacketFromMessage");
                 object packet = openMethod.Invoke(instance, new object[] { msg });

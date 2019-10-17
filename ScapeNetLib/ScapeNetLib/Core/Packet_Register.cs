@@ -4,7 +4,7 @@ using ScapeNetLib.Packets;
 using ScapeNetLib.Packets.MicroData;
 
 /// <summary>
-/// Stores a list of all types of packets that the client and server can use.
+/// Stores a list of all types of packets that the client/server can use.
 /// </summary>
 namespace ScapeNetLib
 {
@@ -33,6 +33,7 @@ namespace ScapeNetLib
             clientPacketReceivedRegister = new Dictionary<string, Func<object[], bool>>();
             serverPacketReceivedRegister = new Dictionary<string, Func<object[], bool>>();
 
+            // Default packet types.
             AddToPacketRegister(typeof(TestPacket));
             AddToPacketRegister(typeof(ConnectionPacket));
             AddToPacketRegister(typeof(OnConnectPacket));

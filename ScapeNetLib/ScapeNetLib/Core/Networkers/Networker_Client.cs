@@ -18,6 +18,7 @@ namespace ScapeNetLib.Networkers
         protected NetClient client;
         protected NetPeerConfiguration config;     
 
+        // Sets the basic config information for Lidgren, and creates the client object.
         public virtual void Setup(string network_title)
         {
             config = new NetPeerConfiguration(network_title);
@@ -28,6 +29,7 @@ namespace ScapeNetLib.Networkers
             client = new NetClient(config);
         }
 
+        // Starts up the client and sets up the approval message.
         public virtual void StartClient(string ip, int port, string connection_approval_string)
         {
             client.Start();
@@ -42,7 +44,7 @@ namespace ScapeNetLib.Networkers
             client.Shutdown("bye");
         }
 
-
+        // Adds the default information to a packet and sends it to the server.
         public virtual void SendPacketToServer<T>(T packet) where T : Packet<T>
         {
             NetOutgoingMessage msg = client.CreateMessage();
@@ -52,6 +54,8 @@ namespace ScapeNetLib.Networkers
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
+        // Adds a receive function to the packet register and defines what happens when a packet of
+        // a certain name is received.
         public void OnReceive(string packet_identifier, Func<object[], bool> function)
         {
             Packet_Register.Instance.clientPacketReceivedRegister.Add(packet_identifier, function);
@@ -96,6 +100,7 @@ namespace ScapeNetLib.Networkers
             string packet_name = msg.ReadString();
             string packet_identifier = msg.ReadString();
 
+            // Find and run the appropriate OpenPacketFromMessage method for the corresponding packet type that was sent.
             if (Packet_Register.Instance.clientPacketReceivedRegister.ContainsKey(packet_identifier))
             {
                 Object instance = Activator.CreateInstance(Packet_Register.Instance.packetTypes[packet_name], packet_identifier);

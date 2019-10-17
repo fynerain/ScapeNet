@@ -16,8 +16,9 @@ namespace ScapeNetLib.Networkers
     {
         protected NetServer server;
         protected NetPeerConfiguration config;
-        protected string connection_approval_string;    
+        protected string connection_approval_string;
 
+        // Sets the basic config information for Lidgren, and creates the client object.
         public void Setup(string network_title, int port)
         {
             config = new NetPeerConfiguration(network_title);
@@ -28,6 +29,7 @@ namespace ScapeNetLib.Networkers
             config.EnableMessageType(NetIncomingMessageType.Data);
         }
 
+        // Fires up the server.
         public virtual void HostServer(float connection_timeout, int maximum_connections, string connection_approval_string)
         {
             config.ConnectionTimeout = connection_timeout;
@@ -46,6 +48,9 @@ namespace ScapeNetLib.Networkers
             server.Shutdown("bye");
         }
 
+
+        // Adds a receive function to the packet register and defines what happens when a packet of
+        // a certain name is received.
         public void OnReceive(string packet_identifier, Func<object[], bool> function)
         {
             Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_identifier, function);
@@ -57,6 +62,7 @@ namespace ScapeNetLib.Networkers
             Packet_Register.Instance.serverPacketReceivedRegister.Add(packet_identifier, function);
         }
 
+        // Adds the default information to a packet and sends it to all clients.
         public void SendPacketToAll<T>(T packet) where T : Packet<T>
         {
             NetOutgoingMessage msg = server.CreateMessage();
@@ -66,6 +72,7 @@ namespace ScapeNetLib.Networkers
             server.SendToAll(msg, NetDeliveryMethod.ReliableOrdered);
         }
 
+        // Adds the default information to a packet and sends it to a specific client.
         public void SendPacketToExistingConnection<T>(T packet, NetConnection conn) where T : Packet<T>
         {
             NetOutgoingMessage msg = server.CreateMessage();
@@ -75,6 +82,7 @@ namespace ScapeNetLib.Networkers
             server.SendMessage(msg, conn, NetDeliveryMethod.ReliableOrdered);
         }
 
+        // Basic Lidgren update loop.
         public virtual void Update()
         {
             NetIncomingMessage msg;
@@ -119,10 +127,10 @@ namespace ScapeNetLib.Networkers
             }
         }
 
-        //Remove all player information once the player leaves.
+        // Remove all player information once the player leaves.
         public virtual void PlayerLeft(NetConnection lostConnection){}
 
-        //When server receives data.
+        // When server receives data open the appropriate method and then resend the packet to all existing clients.
         protected virtual void OnDataReceived(NetIncomingMessage msg)
         {
             string packet_name = msg.ReadString();

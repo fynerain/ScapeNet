@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Lidgren.Network;
 
 /// <summary>
-/// A small packet for sending just a float.
+/// A small packet for sending just a string.
 /// </summary>
 namespace ScapeNetLib.Packets.MicroData
 {

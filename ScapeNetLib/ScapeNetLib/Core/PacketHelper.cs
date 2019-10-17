@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 using Lidgren.Network;
 
+/// <summary>
+/// Used by Networkers to quickly add the correct information to packets before sending it off.
+/// </summary>
 namespace ScapeNetLib
 {
     internal static class PacketHelper
