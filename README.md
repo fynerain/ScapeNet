@@ -30,3 +30,9 @@ To run the Unity example do the following:
  - Run the game.
  
 To open just a Client/Server build press the Client or Server button. If its a server build, be sure to press the server build checkmark in the build settings.
+
+
+
+
+
+[Check out the wiki!](https://github.com/Ian-Henderson06/ScapeNet/wiki/Basics)
