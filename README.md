@@ -4,7 +4,7 @@ A small library built on Lidgren for sending larger amounts of data at a time wi
 ScapeNet is a small library, which allows the sending of organised sets of data in the form of 'packets', these make sending data more intuitive than the current system provided by Lidgren. The goal of ScapeNet, is to make rapid prototyping of multiplayer games, from a lower level perspective, a more pleasant and intuitive process. ScapeNet is by default clientside orientated but allows detailing on the server to make it more, if not fully serverside; however this must be done on a game to game basis.
 
 # The Idea
-I wanted a no non-sense, easy to use lower-level library for some small games i am developing in Unity. I felt using a string based identity system to register packets would be a fun and unique idea, allowing any type of packet to be setup and sent.
+I wanted a no non-sense, easy to use lower-level library for some small games i am developing in Unity. I felt using a string based identity system to register packets would be a fun and unique idea, allowing any type of packet to be setup and sent. I love Lidgren, so i decided to use this as the base. In the future I may develop an alternative way to send the packets other than Lidgren, but Lidgren will always be avaliable, even as a choice.
 
 # Current Abilities
 
